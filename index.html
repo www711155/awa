@@ -1,114 +1,150 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>حصر كميات الدفاع المدني</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap">
+<title>حاصر | نظام حصر وتسعير مخططات الدفاع المدني</title>
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#eef1f4;--card:#fff;--tx:#17212b;--mu:#5d6b7a;--ac:#c8102e;--bd:#d5dce3;--ok:#0a7a4b}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151b;--card:#19212a;--tx:#e6ebf0;--mu:#93a1b0;--bd:#2b3643;--ok:#3fbf88}}
-:root[data-theme="dark"]{--bg:#10151b;--card:#19212a;--tx:#e6ebf0;--mu:#93a1b0;--bd:#2b3643;--ok:#3fbf88}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.7 "IBM Plex Sans Arabic",Tahoma,Arial,sans-serif}
-main{max-width:920px;margin:0 auto;padding:16px}
-h1{font-size:1.4rem;margin:8px 0 2px}.sub{color:var(--mu);margin:0 0 14px}
-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-nav button{flex:1;min-width:110px;padding:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit;border-radius:6px;cursor:pointer}
-nav button.on{border-color:var(--ac);border-bottom:3px solid var(--ac);font-weight:600}
-section{display:none;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}
-section.on{display:block}
-.btn{background:var(--ac);color:#fff;border:0;border-radius:6px;padding:10px 16px;font:inherit;cursor:pointer}
-.btn.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
-.btn:focus-visible,nav button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
-.tw{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:560px}
-th,td{padding:8px;border-bottom:1px solid var(--bd);text-align:right}
-th{color:var(--mu);font-weight:600;font-size:.9rem}
-td.n,th.n{text-align:left;font-variant-numeric:tabular-nums}
-input,select{font:inherit;padding:6px 8px;border:1px solid var(--bd);border-radius:5px;background:var(--bg);color:var(--tx);max-width:100%}
-td input{width:90px;text-align:left}
-.tot{margin-top:12px;margin-inline-start:auto;width:min(320px,100%)}
-.tot div{display:flex;justify-content:space-between;padding:4px 0}
-.tot .g{font-weight:600;font-size:1.15rem;border-top:2px solid var(--tx)}
-.warn{color:var(--ac)}.ok{color:var(--ok)}.mu{color:var(--mu);font-size:.9rem}
-.doc h2{margin:0}.doc .hd{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;border-bottom:3px solid var(--ac);padding-bottom:8px;margin-bottom:10px}
-.qr{word-break:break-all;font-size:.75rem;color:var(--mu);border:1px dashed var(--bd);padding:8px;margin-top:12px}
-@media print{body{background:#fff;color:#000}nav,.no-print,h1,.sub{display:none!important}section{display:none!important;border:0}section.on{display:block!important}}
-</style></head><body><main>
-<h1>حصر كميات مخططات الدفاع المدني</h1>
-<p class="sub">نموذج أولي: من ملف DXF إلى جدول كميات ثم عرض سعر وفاتورة.</p>
-<nav role="tablist"><button data-s="0" class="on">رفع المخطط</button><button data-s="1">جدول الكميات</button><button data-s="2">عرض السعر</button><button data-s="3">الفاتورة</button></nav>
-
-<section id="s0" class="on">
-<div class="row"><input type="file" id="f" accept=".dxf"><button class="btn g" id="demo">جرّب مخططًا تجريبيًا</button></div>
-<div class="row"><label>وحدة الرسم <select id="unit"><option value="0.001">مليمتر</option><option value="0.01">سنتيمتر</option><option value="1">متر</option></select></label></div>
-<p class="mu">يدعم الآن DXF. لملفات DWG احفظها DXF من أوتوكاد. دعم PDF والصور قادم في المرحلة التالية.</p>
-<div id="msg"></div><div class="tw" id="src"></div>
-</section>
-
-<section id="s1"><div class="tw" id="boq"></div><div class="tot" id="tt"></div>
-<p class="mu">الأسعار المعبّأة أسعار افتراضية للتجربة. عدّلها حسب أسعارك.</p></section>
-
-<section id="s2"><div class="row no-print"><input id="cl" placeholder="اسم العميل"><input id="pj" placeholder="اسم المشروع"><input id="sl" placeholder="اسم شركتك"><button class="btn" onclick="print()">طباعة / حفظ PDF</button></div><div class="doc" id="q"></div></section>
-
-<section id="s3"><div class="row no-print"><input id="vn" placeholder="الرقم الضريبي (15 رقم)" inputmode="numeric"><button class="btn" onclick="print()">طباعة / حفظ PDF</button></div><div class="doc" id="iv"></div></section>
-</main>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#6a737d;--bd:#e1e4e8;--ac:#c8321f;--ok:#1a7f4b;--wn:#b7791f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171a;--card:#1d2126;--tx:#e8eaed;--mu:#99a1ab;--bd:#2c3238;--ac:#ef5a45;--ok:#3fb27a;--wn:#e0a94a}}
+:root[data-theme="dark"]{--bg:#14171a;--card:#1d2126;--tx:#e8eaed;--mu:#99a1ab;--bd:#2c3238;--ac:#ef5a45;--ok:#3fb27a;--wn:#e0a94a}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px}
+header{background:var(--card);border-bottom:1px solid var(--bd);padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:19px;margin:0;color:var(--ac)}h1 small{color:var(--mu);font-weight:400;font-size:12px;display:block}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-inline-start:auto}
+button,.btn{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:7px 13px;border-radius:8px;cursor:pointer}
+button.on,button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
+main{max-width:1050px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.kp div{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px}
+.kp b{display:block;font-size:20px;margin-top:4px}.kp span{color:var(--mu);font-size:12px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:640px}
+th,td{padding:8px;border-bottom:1px solid var(--bd);text-align:start;font-size:14px}th{color:var(--mu);font-weight:600;font-size:12px}
+input,select{font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:6px;padding:5px 7px;max-width:100%}
+td input[type=number]{width:84px}td input.nm{width:100%;min-width:150px}
+.drop{border:2px dashed var(--bd);border-radius:12px;padding:16px;text-align:center;color:var(--mu)}
+.tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;background:var(--bg)}
+.ok{color:var(--ok)}.wn{color:var(--wn)}
+.tot{max-width:340px;margin-inline-start:auto}.tot div{display:flex;justify-content:space-between;padding:4px 0}
+.tot .g{font-weight:700;font-size:17px;border-top:2px solid var(--tx);margin-top:4px;padding-top:8px}
+.int{border:1px dashed var(--wn);border-radius:10px;padding:10px;margin-top:12px;font-size:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+@media print{header,.noprint{display:none!important}body{background:#fff;color:#000}.card{border:0}main{padding:0}}
+</style><script src="lib/pdf.js"></script>
+<script src="lib/pdf.worker.js"></script>
+</head><body>
+<header><h1>🔥 حاصر<small>من المخطط إلى الكميات والتسعير</small></h1>
+<nav class="noprint" id="nav"></nav></header>
+<main id="app"></main>
 <script>
-const I=[
-{k:'sprk',n:'رشاش إطفاء',u:'عدد',p:45,m:/sprk|sprinkler/i},
-{k:'smk',n:'كاشف دخان',u:'عدد',p:120,m:/smoke|smk/i},
-{k:'ht',n:'كاشف حرارة',u:'عدد',p:110,m:/heat/i},
-{k:'mcp',n:'نقطة استغاثة يدوية',u:'عدد',p:95,m:/mcp|call/i},
-{k:'hs',n:'جرس وفلاشر',u:'عدد',p:140,m:/horn|strobe/i},
-{k:'ext',n:'طفاية حريق',u:'عدد',p:160,m:/ext/i},
-{k:'exit',n:'لوحة مخرج طوارئ',u:'عدد',p:85,m:/exit/i},
-{k:'emg',n:'إنارة طوارئ',u:'عدد',p:75,m:/emg|emerg/i},
-{k:'fhc',n:'صندوق خرطوم حريق',u:'عدد',p:950,m:/hose|fhc/i},
-{k:'pipe',n:'مواسير إطفاء',u:'م.ط',p:65,m:/pipe|fp-p/i,l:1},
-{k:'cab',n:'كابلات إنذار',u:'م.ط',p:9,m:/cable|fa-c/i,l:1}];
-const $=id=>document.getElementById(id),P={},Q={};I.forEach(i=>P[i.k]=i.p);
-let src=[];
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const f2=n=>n.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
-function go(n){document.querySelectorAll('section').forEach((s,i)=>s.classList.toggle('on',i==n));document.querySelectorAll('nav button').forEach((b,i)=>b.classList.toggle('on',i==n));if(n==1)boq();if(n==2)doc('q','عرض سعر','Q');if(n==3)doc('iv','فاتورة ضريبية','INV')}
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(+b.dataset.s));
-function parse(t){const a=t.search(/\n\s*2\s*\r?\n\s*ENTITIES/);if(a>0)t=t.slice(a);
-const L=t.split(/\r?\n/),E=[];let e=null;
+const I=(id,n,u,c,p,q,cf,kw)=>({id,n,u,c,p,q,cf,kw,ok:false});
+let S={tab:0,disc:0,vat:15,cli:'',qn:'Q-2026-001',msg:'',scale:0.001,
+items:[
+I('sp','رشاش حريق Sprinkler ½"','عدد',25,38,86,96,['sprink','رشاش']),
+I('sd','كاشف دخان Smoke Detector','عدد',120,185,42,91,['smoke','دخان']),
+I('hd','كاشف حرارة Heat Detector','عدد',110,170,18,78,['heat','حرار']),
+I('mc','نقطة نداء يدوي MCP','عدد',95,150,12,94,['mcp','call','نداء']),
+I('sn','جرس/فلاش Sounder-Strobe','عدد',140,210,14,82,['sounder','strobe','جرس']),
+I('hc','صندوق حريق Hose Cabinet 1½"','عدد',450,650,9,97,['hose','fhc','صندوق']),
+I('ex','طفاية CO₂ 5 كجم','عدد',280,390,24,88,['ext','طفاي']),
+I('p2','ماسورة 2" Pipe','م',38,55,210,72,[]),
+I('p4','ماسورة 4" Pipe','م',85,120,72,90,[]),
+I('vl','محبس Valve','عدد',210,320,16,93,['valve','محبس']),
+I('es','لوحة مخرج طوارئ Exit','عدد',60,95,20,95,['exit','مخرج']),
+I('el','إنارة طوارئ Emergency Light','عدد',75,120,20,93,['emerg','إنارة'])]};
+const $=s=>document.querySelector(s),f=n=>(+n||0).toLocaleString('en-US',{maximumFractionDigits:2});
+const TABS=['لوحة التحكم','الحصر BOQ','قاعدة الأسعار','عرض السعر'];
+const rev=i=>i.cf<85&&!i.ok&&i.q>0;
+function T(){let s=0,c=0;S.items.forEach(i=>{s+=i.q*i.p;c+=i.q*i.c});const d=s*S.disc/100,net=s-d,v=net*S.vat/100;
+return{s,c,d,net,v,tot:net+v,pr:net-c,mg:net?(net-c)/net*100:0,rv:S.items.filter(rev).length}}
+function totalsHTML(int){const t=T();return `<div class="tot"><div><span>المجموع</span><span>${f(t.s)}</span></div>
+<div><span>الخصم (${S.disc}%)</span><span>${f(t.d)}</span></div><div><span>قبل الضريبة</span><span>${f(t.net)}</span></div>
+<div><span>ضريبة القيمة المضافة ${S.vat}%</span><span>${f(t.v)}</span></div><div class="g"><span>الإجمالي النهائي (ريال)</span><span>${f(t.tot)}</span></div></div>`+
+(int?`<div class="int">🔒 داخلي فقط (لا يظهر للعميل): التكلفة ${f(t.c)} — صافي الربح <b>${f(t.pr)}</b> ريال — الهامش <b>${f(t.mg)}%</b></div>`:'')}
+function upd(){S.items.forEach((i,k)=>{const e=$('#rt'+k);if(e)e.textContent=f(i.q*i.p);const q=$('#q'+k);if(q&&document.activeElement!==q)q.value=i.q});
+const a=$('#tb');if(a)a.innerHTML=totalsHTML(1);const b=$('#qt');if(b)b.innerHTML=totalsHTML(0);
+const r=$('#rvn');if(r)r.textContent=T().rv}
+function go(n){S.tab=n;render()}
+function render(){$('#nav').innerHTML=TABS.map((t,i)=>`<button class="${S.tab==i?'on':''}" onclick="go(${i})">${t}</button>`).join('');
+$('#app').innerHTML=[dash,boq,prices,quote][S.tab]();upd();if(S.tab==1&&S.view)drawV()}
+function dash(){const t=T(),n=S.items.filter(i=>i.q>0).length,tot=S.items.reduce((a,i)=>a+i.q,0);
+const rl=S.items.filter(rev);
+return `<div class="kp"><div><span>أصناف محصورة</span><b>${n}</b></div><div><span>إجمالي العناصر</span><b>${f(tot)}</b></div>
+<div><span>قيمة العرض</span><b>${f(t.tot)}</b></div><div><span>صافي الربح</span><b>${f(t.pr)}</b></div>
+<div><span>هامش الربح</span><b>${f(t.mg)}%</b></div><div><span>تحتاج مراجعة</span><b class="wn">${rl.length}</b></div></div>
+<div class="card" style="margin-top:14px"><h3 style="margin-top:0">⚠️ عناصر تحتاج مراجعة</h3>${rl.length?rl.map(i=>`<div class="row"><span>${i.n} — ${f(i.q)} ${i.u}</span><span class="tag wn">ثقة ${i.cf}%</span><button onclick="S.items.find(x=>x.id=='${i.id}').ok=true;render()">اعتماد</button></div>`).join(''):'<span class="ok">✔ كل العناصر معتمدة</span>'}</div>`}
+function boq(){return `<div class="card noprint"><div class="drop"><div class="row" style="justify-content:center">
+<label>وحدة الرسم: <select onchange="S.scale=+this.value"><option value="0.001" ${S.scale==.001?'selected':''}>mm</option><option value="0.01" ${S.scale==.01?'selected':''}>cm</option><option value="1" ${S.scale==1?'selected':''}>m</option></select></label>
+<input type="file" accept=".dxf,.pdf,.png,.jpg,.jpeg" onchange="loadF(this.files[0])"></div>
+<div>DXF: حصر آلي للرموز والمواسير. PDF أو صورة: يظهر المخطط وتحدد عليه العناصر بالنقر، وإن كان الـPDF يحتوي نصوصًا فيُحصى منها تلقائيًا. (DWG: حوّله إلى DXF أو PDF)</div></div>
+<p id="msg" style="margin:10px 0 0">${S.msg}</p></div>
+${S.view?`<div class="card noprint"><div class="row"><b>تحديد العناصر على المخطط</b>
+<select onchange="S.cur=this.value">${S.items.map(i=>`<option value="${i.id}" ${S.cur==i.id?'selected':''}>${i.n}</option>`).join('')}</select>
+<button onclick="pgGo(-1)">◀</button><span>صفحة ${S.pn}/${S.np}</span><button onclick="pgGo(1)">▶</button>
+<button onclick="S.mk.pop();syncQ();keep()">تراجع</button><button onclick="S.mk=[];syncQ();keep()">مسح العلامات</button><span>العلامات: ${S.mk.length}</span></div>
+<div class="tw"><canvas id="cv" style="max-width:100%;cursor:crosshair;border:1px solid var(--bd)" onclick="mark(event)"></canvas></div>
+<small style="color:var(--mu)">اختر الصنف ثم انقر على كل رمز في المخطط؛ الكمية تُحدَّث تلقائيًا.</small></div>`:''}
+<div class="card"><div class="tw"><table><tr><th>#</th><th>الصنف</th><th>الوحدة</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th><th>الثقة</th></tr>
+${S.items.map((i,k)=>`<tr><td>${k+1}</td><td>${i.n}</td><td>${i.u}</td><td><input type="number" min="0" value="${i.q}" id="q${k}" oninput="S.items[${k}].q=+this.value;upd()"></td>
+<td><input type="number" min="0" value="${i.p}" oninput="S.items[${k}].p=+this.value;upd()"></td><td id="rt${k}"></td>
+<td>${rev(i)?`<button onclick="S.items[${k}].ok=true;render()">⚠️ ${i.cf}% اعتماد</button>`:`<span class="tag ok">✔ ${i.cf}%</span>`}</td></tr>`).join('')}</table></div>
+<div class="row noprint" style="margin-top:10px"><label>خصم % <input type="number" min="0" max="100" value="${S.disc}" style="width:70px" oninput="S.disc=+this.value;upd()"></label>
+<span>عناصر تحتاج مراجعة: <b id="rvn" class="wn"></b></span></div><div id="tb"></div></div>`}
+function prices(){return `<div class="card"><div class="tw"><table><tr><th>الصنف</th><th>الوحدة</th><th>سعر الشراء</th><th>سعر البيع</th><th>الهامش</th></tr>
+${S.items.map((i,k)=>`<tr><td><input class="nm" value="${i.n}" onchange="S.items[${k}].n=this.value"></td><td><input value="${i.u}" style="width:60px" onchange="S.items[${k}].u=this.value"></td>
+<td><input type="number" value="${i.c}" oninput="S.items[${k}].c=+this.value;this.closest('tr').lastElementChild.textContent=mg(${k});upd()"></td>
+<td><input type="number" value="${i.p}" oninput="S.items[${k}].p=+this.value;this.closest('tr').lastElementChild.textContent=mg(${k});upd()"></td><td>${mg(k)}</td></tr>`).join('')}</table></div>
+<button class="pri" style="margin-top:10px" onclick="S.items.push(I('n'+Date.now(),'صنف جديد','عدد',0,0,0,100,[]));render()">+ إضافة صنف</button></div>`}
+const mg=k=>{const i=S.items[k];return i.p?f((i.p-i.c)/i.p*100)+'%':'-'};
+function quote(){const r=S.items.filter(i=>i.q>0);
+return `<div class="row noprint"><input placeholder="اسم العميل" value="${S.cli}" onchange="S.cli=this.value;render()"><input value="${S.qn}" onchange="S.qn=this.value;render()" style="width:130px">
+<button class="pri" onclick="print()">طباعة / حفظ PDF</button></div>
+<div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0;color:var(--ac)">عرض سعر</h2><div>رقم العرض: ${S.qn}<br>التاريخ: ${new Date().toLocaleDateString('en-GB')}</div></div>
+<p><b>العميل:</b> ${S.cli||'—'}</p><div class="tw"><table><tr><th>#</th><th>الوصف</th><th>الوحدة</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr>
+${r.map((i,k)=>`<tr><td>${k+1}</td><td>${i.n}</td><td>${i.u}</td><td>${f(i.q)}</td><td>${f(i.p)}</td><td>${f(i.q*i.p)}</td></tr>`).join('')}</table></div>
+<div id="qt" style="margin-top:12px"></div>
+<h4>الشروط والأحكام</h4><ul style="color:var(--mu);font-size:13px"><li>العرض ساري 15 يومًا من تاريخه.</li><li>الأسعار بالريال السعودي وتشمل التركيب ولا تشمل أعمال غير مذكورة.</li><li>الدفع: 50% دفعة مقدمة والباقي عند الاستلام.</li></ul>
+<div class="row" style="justify-content:space-between;margin-top:30px"><span>التوقيع: ____________</span><span>الختم</span></div></div>`}
+function loadF(file){if(!file)return;const nm=file.name;if(/\.pdf$/i.test(nm))return loadPDF(file);if(/\.(png|jpe?g)$/i.test(nm))return loadImg(file);
+if(!/\.dxf$/i.test(nm)){S.msg='<span class="wn">⚠️ صيغة غير مدعومة. استخدم DXF أو PDF أو صورة.</span>';return render()}
+const r=new FileReader();r.onload=()=>{try{applyDXF(parseDXF(r.result))}catch(e){S.msg='<span class="wn">تعذر قراءة الملف.</span>';render()}};r.readAsText(file)}
+function parseDXF(t){const L=t.split(/\r?\n/),out=[];let e=null,on=false;
 for(let i=0;i+1<L.length;i+=2){const c=+L[i].trim(),v=L[i+1].trim();
-if(c==0){if(e)E.push(e);e=['INSERT','LINE','LWPOLYLINE'].includes(v)?{t:v,x:[],y:[]}:null;continue}
-if(!e)continue;
-if(c==8)e.l=v;else if(c==2&&e.t=='INSERT')e.b=v;else if(c==10||c==11)e.x.push(+v);else if(c==20||c==21)e.y.push(+v)}
-if(e)E.push(e);return E}
-function len(e){let s=0;for(let i=1;i<e.x.length;i++)s+=Math.hypot(e.x[i]-e.x[i-1],e.y[i]-e.y[i-1]);return s}
-function run(t){const u=+$('unit').value,E=parse(t),B={},Ln={};
-E.forEach(e=>{if(e.t=='INSERT'&&e.b)B[e.b]=(B[e.b]||0)+1;else if(e.t!='INSERT'&&e.l)Ln[e.l]=(Ln[e.l]||0)+len(e)*u});
-src=[];
-Object.entries(B).forEach(([n,q])=>{const m=I.find(i=>!i.l&&i.m.test(n));src.push({n,q,k:m?m.k:'',t:'رمز'})});
-Object.entries(Ln).forEach(([n,q])=>{const m=I.find(i=>i.l&&i.m.test(n));src.push({n,q:Math.round(q*100)/100,k:m?m.k:'',t:'طول (م)'})});
-Object.keys(Q).forEach(k=>delete Q[k]);
-if(!src.length){$('msg').innerHTML='<p class="warn">لم يُعثر على رموز أو خطوط. تأكد أن الملف DXF نصي (ASCII).</p>';$('src').innerHTML='';return}
-const un=src.filter(s=>!s.k).length;
-$('msg').innerHTML=`<p class="ok">تم حصر ${src.length} عنصرًا من المخطط.</p>`+(un?`<p class="warn">${un} عنصر غير مصنّف. اختر له بندًا من القائمة.</p>`:'');
-drawSrc()}
-function drawSrc(){$('src').innerHTML='<table><tr><th>الاسم في المخطط</th><th>النوع</th><th class="n">الكمية</th><th>البند</th></tr>'+src.map((s,i)=>`<tr><td>${esc(s.n)}</td><td>${s.t}</td><td class="n">${s.q}</td><td><select data-i="${i}"><option value="">غير مصنّف</option>${I.filter(x=>!!x.l==(s.t!='رمز')).map(x=>`<option value="${x.k}"${x.k==s.k?' selected':''}>${x.n}</option>`).join('')}</select></td></tr>`).join('')+'</table><div class="row"><button class="btn" onclick="go(1)">عرض جدول الكميات</button></div>';
-document.querySelectorAll('#src select').forEach(s=>s.onchange=()=>{src[+s.dataset.i].k=s.value;Object.keys(Q).forEach(k=>delete Q[k])})}
-function rows(){return I.map(i=>{const a=src.filter(s=>s.k==i.k).reduce((x,s)=>x+s.q,0);if(!a)return null;const q=Q[i.k]??a;return{...i,q,p:P[i.k],t:q*P[i.k]}}).filter(Boolean)}
-function sum(r){const s=r.reduce((a,x)=>a+x.t,0);return{s,v:s*.15,g:s*1.15}}
-function boq(){const r=rows();if(!r.length){$('boq').innerHTML='<p class="mu">ارفع مخططًا أولًا من الخطوة الأولى.</p>';$('tt').innerHTML='';return}
-$('boq').innerHTML='<table><tr><th>البند</th><th>الوحدة</th><th class="n">الكمية</th><th class="n">سعر الوحدة</th><th class="n">الإجمالي</th></tr>'+r.map(x=>`<tr><td>${x.n}</td><td>${x.u}</td><td class="n"><input type="number" step="any" value="${x.q}" data-q="${x.k}"></td><td class="n"><input type="number" step="any" value="${x.p}" data-p="${x.k}"></td><td class="n">${f2(x.t)}</td></tr>`).join('')+'</table>';
-const t=sum(r);$('tt').innerHTML=`<div><span>المجموع</span><span>${f2(t.s)}</span></div><div><span>ضريبة 15%</span><span>${f2(t.v)}</span></div><div class="g"><span>الإجمالي</span><span>${f2(t.g)} ر.س</span></div>`;
-document.querySelectorAll('#boq input').forEach(n=>n.onchange=()=>{const d=n.dataset;if(d.q)Q[d.q]=+n.value;else P[d.p]=+n.value;boq()})}
-function tlv(a){const e=new TextEncoder();let b=[];a.forEach((v,i)=>{const d=e.encode(String(v));b.push(i+1,d.length,...d)});return btoa(String.fromCharCode(...b))}
-function doc(id,title,pre){const r=rows(),el=$(id);if(!r.length){el.innerHTML='<p class="mu">لا توجد كميات بعد.</p>';return}
-const t=sum(r),d=new Date(),no=pre+'-'+d.toISOString().slice(0,10).replace(/-/g,'')+'-001',sl=esc($('sl').value||'اسم الشركة');
-let qr='';if(pre=='INV'){const vn=$('vn').value||'000000000000000';qr=`<div class="qr">بيانات QR لهيئة الزكاة (TLV/Base64): ${tlv([$('sl').value||'الشركة',vn,d.toISOString(),t.g.toFixed(2),t.v.toFixed(2)])}<br>ملاحظة: رسم الـ QR والربط مع فاتورة المرحلة الثانية يُضافان في الإصدار القادم.</div>`}
-el.innerHTML=`<div class="hd"><div><h2>${title}</h2><div>${sl}</div></div><div class="mu">رقم: ${no}<br>التاريخ: ${d.toLocaleDateString('en-GB')}</div></div><p>العميل: ${esc($('cl').value||'-')}<br>المشروع: ${esc($('pj').value||'-')}</p><div class="tw"><table><tr><th>البند</th><th>الوحدة</th><th class="n">الكمية</th><th class="n">السعر</th><th class="n">الإجمالي</th></tr>`+r.map(x=>`<tr><td>${x.n}</td><td>${x.u}</td><td class="n">${x.q}</td><td class="n">${f2(x.p)}</td><td class="n">${f2(x.t)}</td></tr>`).join('')+`</table></div><div class="tot"><div><span>المجموع</span><span>${f2(t.s)}</span></div><div><span>ضريبة القيمة المضافة 15%</span><span>${f2(t.v)}</span></div><div class="g"><span>الإجمالي</span><span>${f2(t.g)} ر.س</span></div></div>`+(pre=='Q'?'<p class="mu">العرض ساري 15 يومًا. الكميات حسب المخططات المرفقة.</p>':qr)}
-['cl','pj','sl','vn'].forEach(i=>$(i).oninput=()=>{const a=document.querySelector('section.on').id;if(a=='s2')doc('q','عرض سعر','Q');if(a=='s3')doc('iv','فاتورة ضريبية','INV')});
-$('f').onchange=e=>{const f=e.target.files[0];if(!f)return;if(!/\.dxf$/i.test(f.name)){$('msg').innerHTML='<p class="warn">الملف ليس DXF. احفظ مخطط DWG بصيغة DXF ثم ارفعه.</p>';return}f.text().then(run)};
-$('demo').onclick=()=>{let s='0\nSECTION\n2\nENTITIES\n';
-const ins=(b,l,n)=>{for(let i=0;i<n;i++)s+=`0\nINSERT\n8\n${l}\n2\n${b}\n10\n${i*3000}\n20\n0\n`};
-ins('SPRINKLER_PENDENT','FP-HEAD',24);ins('SMOKE_DET','FA-DEV',10);ins('MCP','FA-DEV',3);ins('EXIT_SIGN','EM',4);ins('FIRE_EXT','FF',5);ins('EMG_LIGHT','EM',6);ins('HORN_STROBE','FA-DEV',2);ins('XYZ_UNKNOWN','0',1);
-s+='0\nLINE\n8\nFP-PIPE\n10\n0\n20\n0\n11\n72000\n21\n0\n0\nLINE\n8\nFP-PIPE\n10\n0\n20\n0\n11\n0\n21\n18000\n';
-s+='0\nLWPOLYLINE\n8\nFA-CABLE\n90\n3\n70\n0\n10\n0\n20\n0\n10\n30000\n20\n0\n10\n30000\n20\n12000\n0\nENDSEC\n0\nEOF\n';
-$('unit').value='0.001';run(s)};
+if(c==0){if(v=='ENDSEC'||v=='SECTION'){on=false;e=null;continue}e=on?{t:v,p:[],x:null}:null;if(e)out.push(e);continue}
+if(c==2&&v=='ENTITIES'&&!e){on=true;continue}if(!e)continue;
+if(c==8)e.l=v;else if(c==2&&!e.n)e.n=v;else if(c==10||c==11)e.x=+v;else if(c==20||c==21)e.p.push([e.x,+v])}
+return out}
+function applyDXF(es){S.items.forEach(i=>{i.q=0;i.ok=false});const found={};let pm={p2:0,p4:0};
+const d=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+es.forEach(e=>{const s=((e.n||'')+' '+(e.l||'')).toLowerCase();
+if(e.t=='INSERT'){const it=S.items.find(i=>i.kw.some(k=>s.includes(k)));if(it){it.q++;it.cf=95}}
+else if(/pipe|ماسورة|مواسير/.test(s)&&(e.t=='LINE'||e.t=='LWPOLYLINE')){let l=0;for(let k=1;k<e.p.length;k++)l+=d(e.p[k-1],e.p[k]);
+pm[/4|100|6|150/.test(e.l||'')?'p4':'p2']+=l*S.scale}});
+['p2','p4'].forEach(k=>{const it=S.items.find(i=>i.id==k);it.q=Math.round(pm[k]*10)/10;it.cf=it.q?70:100});
+const n=S.items.filter(i=>i.q>0).length;
+S.msg=n?`<span class="ok">✔ تم الحصر الآلي: ${n} صنف. راجع العناصر المعلّمة ⚠️ قبل الاعتماد.</span>`:'<span class="wn">لم يتم العثور على رموز معروفة. تأكد من أسماء البلوكات/الطبقات.</span>';render()}
+
+S.cur='sp';S.mk=[];S.tc=new Set();S.pn=1;S.np=1;S.view=0;let BG=null,PDF=null;
+function keep(){const y=scrollY;render();scrollTo(0,y)}
+function syncQ(){S.items.forEach(i=>{if(S.tc.has(i.id)||S.mk.some(m=>m.id==i.id)){S.tc.add(i.id);i.q=S.mk.filter(m=>m.id==i.id).length;i.cf=100}})}
+function mark(e){const r=e.target.getBoundingClientRect();S.mk.push({p:S.pn,x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height,id:S.cur});syncQ();keep()}
+function drawV(){const c=$('#cv');if(!c||!BG)return;c.width=BG.width;c.height=BG.height;const g=c.getContext('2d');g.drawImage(BG,0,0);
+const cnt={};g.font='bold 15px Tahoma';g.textAlign='center';g.textBaseline='middle';
+S.mk.filter(m=>m.p==S.pn).forEach(m=>{cnt[m.id]=(cnt[m.id]||0)+1;g.fillStyle='rgba(220,40,30,.85)';g.beginPath();g.arc(m.x*c.width,m.y*c.height,11,0,7);g.fill();g.fillStyle='#fff';g.fillText(cnt[m.id],m.x*c.width,m.y*c.height)})}
+async function showPage(n){S.pn=n;const pg=await PDF.getPage(n),vp=pg.getViewport({scale:1.8}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;BG=c;S.view=1;keep()}
+function pgGo(d){const n=S.pn+d;if(PDF&&n>=1&&n<=S.np)showPage(n)}
+function loadImg(file){const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;c.getContext('2d').drawImage(im,0,0);
+BG=c;PDF=null;S.np=1;S.pn=1;S.mk=[];S.view=1;S.msg='<span class="ok">✔ تم فتح الصورة. حدّد العناصر بالنقر على المخطط.</span>';render()};im.onerror=()=>{S.msg='<span class="wn">تعذر فتح الصورة.</span>';render()};im.src=URL.createObjectURL(file)}
+async function loadPDF(file){S.msg='⏳ جاري قراءة المخطط...';render();
+try{if(!window.pdfjsLib)throw new Error('lib/pdf.js غير موجود بجانب index.html');
+PDF=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false}).promise;S.np=PDF.numPages;S.mk=[];S.tc=new Set();
+const cn={};let tx=0;
+for(let p=1;p<=S.np;p++){const tc=await (await PDF.getPage(p)).getTextContent();tc.items.forEach(t=>{const x=t.str.toLowerCase();if(!x.trim())return;tx++;
+const it=S.items.find(i=>i.kw.some(k=>x.includes(k)));if(it)cn[it.id]=(cn[it.id]||0)+1})}
+const ids=Object.keys(cn);ids.forEach(id=>{const it=S.items.find(i=>i.id==id);it.q=cn[id];it.cf=60;it.ok=false});
+S.msg=tx?`<span class="ok">✔ تم فتح ${S.np} صفحة. عُثر على ${ids.length} صنف من النصوص (تحتاج مراجعة، وقد تشمل جدول المفاتيح). أكمل الحصر بالنقر على المخطط.</span>`
+:'<span class="wn">⚠️ المخطط ممسوح/صورة بدون نصوص: استخدم التحديد اليدوي بالنقر.</span>';
+await showPage(1)}catch(e){console.error(e);S.msg='<span class="wn">⚠️ تعذر فتح الـPDF ('+(e&&e.message||e)+'). جرّب صورة للمخطط.</span>';render()}}
+render();
 </script></body></html>
