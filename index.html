@@ -1,0 +1,114 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>حصر كميات الدفاع المدني</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#eef1f4;--card:#fff;--tx:#17212b;--mu:#5d6b7a;--ac:#c8102e;--bd:#d5dce3;--ok:#0a7a4b}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151b;--card:#19212a;--tx:#e6ebf0;--mu:#93a1b0;--bd:#2b3643;--ok:#3fbf88}}
+:root[data-theme="dark"]{--bg:#10151b;--card:#19212a;--tx:#e6ebf0;--mu:#93a1b0;--bd:#2b3643;--ok:#3fbf88}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.7 "IBM Plex Sans Arabic",Tahoma,Arial,sans-serif}
+main{max-width:920px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:8px 0 2px}.sub{color:var(--mu);margin:0 0 14px}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+nav button{flex:1;min-width:110px;padding:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit;border-radius:6px;cursor:pointer}
+nav button.on{border-color:var(--ac);border-bottom:3px solid var(--ac);font-weight:600}
+section{display:none;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}
+section.on{display:block}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:6px;padding:10px 16px;font:inherit;cursor:pointer}
+.btn.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+.btn:focus-visible,nav button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th,td{padding:8px;border-bottom:1px solid var(--bd);text-align:right}
+th{color:var(--mu);font-weight:600;font-size:.9rem}
+td.n,th.n{text-align:left;font-variant-numeric:tabular-nums}
+input,select{font:inherit;padding:6px 8px;border:1px solid var(--bd);border-radius:5px;background:var(--bg);color:var(--tx);max-width:100%}
+td input{width:90px;text-align:left}
+.tot{margin-top:12px;margin-inline-start:auto;width:min(320px,100%)}
+.tot div{display:flex;justify-content:space-between;padding:4px 0}
+.tot .g{font-weight:600;font-size:1.15rem;border-top:2px solid var(--tx)}
+.warn{color:var(--ac)}.ok{color:var(--ok)}.mu{color:var(--mu);font-size:.9rem}
+.doc h2{margin:0}.doc .hd{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;border-bottom:3px solid var(--ac);padding-bottom:8px;margin-bottom:10px}
+.qr{word-break:break-all;font-size:.75rem;color:var(--mu);border:1px dashed var(--bd);padding:8px;margin-top:12px}
+@media print{body{background:#fff;color:#000}nav,.no-print,h1,.sub{display:none!important}section{display:none!important;border:0}section.on{display:block!important}}
+</style></head><body><main>
+<h1>حصر كميات مخططات الدفاع المدني</h1>
+<p class="sub">نموذج أولي: من ملف DXF إلى جدول كميات ثم عرض سعر وفاتورة.</p>
+<nav role="tablist"><button data-s="0" class="on">رفع المخطط</button><button data-s="1">جدول الكميات</button><button data-s="2">عرض السعر</button><button data-s="3">الفاتورة</button></nav>
+
+<section id="s0" class="on">
+<div class="row"><input type="file" id="f" accept=".dxf"><button class="btn g" id="demo">جرّب مخططًا تجريبيًا</button></div>
+<div class="row"><label>وحدة الرسم <select id="unit"><option value="0.001">مليمتر</option><option value="0.01">سنتيمتر</option><option value="1">متر</option></select></label></div>
+<p class="mu">يدعم الآن DXF. لملفات DWG احفظها DXF من أوتوكاد. دعم PDF والصور قادم في المرحلة التالية.</p>
+<div id="msg"></div><div class="tw" id="src"></div>
+</section>
+
+<section id="s1"><div class="tw" id="boq"></div><div class="tot" id="tt"></div>
+<p class="mu">الأسعار المعبّأة أسعار افتراضية للتجربة. عدّلها حسب أسعارك.</p></section>
+
+<section id="s2"><div class="row no-print"><input id="cl" placeholder="اسم العميل"><input id="pj" placeholder="اسم المشروع"><input id="sl" placeholder="اسم شركتك"><button class="btn" onclick="print()">طباعة / حفظ PDF</button></div><div class="doc" id="q"></div></section>
+
+<section id="s3"><div class="row no-print"><input id="vn" placeholder="الرقم الضريبي (15 رقم)" inputmode="numeric"><button class="btn" onclick="print()">طباعة / حفظ PDF</button></div><div class="doc" id="iv"></div></section>
+</main>
+<script>
+const I=[
+{k:'sprk',n:'رشاش إطفاء',u:'عدد',p:45,m:/sprk|sprinkler/i},
+{k:'smk',n:'كاشف دخان',u:'عدد',p:120,m:/smoke|smk/i},
+{k:'ht',n:'كاشف حرارة',u:'عدد',p:110,m:/heat/i},
+{k:'mcp',n:'نقطة استغاثة يدوية',u:'عدد',p:95,m:/mcp|call/i},
+{k:'hs',n:'جرس وفلاشر',u:'عدد',p:140,m:/horn|strobe/i},
+{k:'ext',n:'طفاية حريق',u:'عدد',p:160,m:/ext/i},
+{k:'exit',n:'لوحة مخرج طوارئ',u:'عدد',p:85,m:/exit/i},
+{k:'emg',n:'إنارة طوارئ',u:'عدد',p:75,m:/emg|emerg/i},
+{k:'fhc',n:'صندوق خرطوم حريق',u:'عدد',p:950,m:/hose|fhc/i},
+{k:'pipe',n:'مواسير إطفاء',u:'م.ط',p:65,m:/pipe|fp-p/i,l:1},
+{k:'cab',n:'كابلات إنذار',u:'م.ط',p:9,m:/cable|fa-c/i,l:1}];
+const $=id=>document.getElementById(id),P={},Q={};I.forEach(i=>P[i.k]=i.p);
+let src=[];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const f2=n=>n.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+function go(n){document.querySelectorAll('section').forEach((s,i)=>s.classList.toggle('on',i==n));document.querySelectorAll('nav button').forEach((b,i)=>b.classList.toggle('on',i==n));if(n==1)boq();if(n==2)doc('q','عرض سعر','Q');if(n==3)doc('iv','فاتورة ضريبية','INV')}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(+b.dataset.s));
+function parse(t){const a=t.search(/\n\s*2\s*\r?\n\s*ENTITIES/);if(a>0)t=t.slice(a);
+const L=t.split(/\r?\n/),E=[];let e=null;
+for(let i=0;i+1<L.length;i+=2){const c=+L[i].trim(),v=L[i+1].trim();
+if(c==0){if(e)E.push(e);e=['INSERT','LINE','LWPOLYLINE'].includes(v)?{t:v,x:[],y:[]}:null;continue}
+if(!e)continue;
+if(c==8)e.l=v;else if(c==2&&e.t=='INSERT')e.b=v;else if(c==10||c==11)e.x.push(+v);else if(c==20||c==21)e.y.push(+v)}
+if(e)E.push(e);return E}
+function len(e){let s=0;for(let i=1;i<e.x.length;i++)s+=Math.hypot(e.x[i]-e.x[i-1],e.y[i]-e.y[i-1]);return s}
+function run(t){const u=+$('unit').value,E=parse(t),B={},Ln={};
+E.forEach(e=>{if(e.t=='INSERT'&&e.b)B[e.b]=(B[e.b]||0)+1;else if(e.t!='INSERT'&&e.l)Ln[e.l]=(Ln[e.l]||0)+len(e)*u});
+src=[];
+Object.entries(B).forEach(([n,q])=>{const m=I.find(i=>!i.l&&i.m.test(n));src.push({n,q,k:m?m.k:'',t:'رمز'})});
+Object.entries(Ln).forEach(([n,q])=>{const m=I.find(i=>i.l&&i.m.test(n));src.push({n,q:Math.round(q*100)/100,k:m?m.k:'',t:'طول (م)'})});
+Object.keys(Q).forEach(k=>delete Q[k]);
+if(!src.length){$('msg').innerHTML='<p class="warn">لم يُعثر على رموز أو خطوط. تأكد أن الملف DXF نصي (ASCII).</p>';$('src').innerHTML='';return}
+const un=src.filter(s=>!s.k).length;
+$('msg').innerHTML=`<p class="ok">تم حصر ${src.length} عنصرًا من المخطط.</p>`+(un?`<p class="warn">${un} عنصر غير مصنّف. اختر له بندًا من القائمة.</p>`:'');
+drawSrc()}
+function drawSrc(){$('src').innerHTML='<table><tr><th>الاسم في المخطط</th><th>النوع</th><th class="n">الكمية</th><th>البند</th></tr>'+src.map((s,i)=>`<tr><td>${esc(s.n)}</td><td>${s.t}</td><td class="n">${s.q}</td><td><select data-i="${i}"><option value="">غير مصنّف</option>${I.filter(x=>!!x.l==(s.t!='رمز')).map(x=>`<option value="${x.k}"${x.k==s.k?' selected':''}>${x.n}</option>`).join('')}</select></td></tr>`).join('')+'</table><div class="row"><button class="btn" onclick="go(1)">عرض جدول الكميات</button></div>';
+document.querySelectorAll('#src select').forEach(s=>s.onchange=()=>{src[+s.dataset.i].k=s.value;Object.keys(Q).forEach(k=>delete Q[k])})}
+function rows(){return I.map(i=>{const a=src.filter(s=>s.k==i.k).reduce((x,s)=>x+s.q,0);if(!a)return null;const q=Q[i.k]??a;return{...i,q,p:P[i.k],t:q*P[i.k]}}).filter(Boolean)}
+function sum(r){const s=r.reduce((a,x)=>a+x.t,0);return{s,v:s*.15,g:s*1.15}}
+function boq(){const r=rows();if(!r.length){$('boq').innerHTML='<p class="mu">ارفع مخططًا أولًا من الخطوة الأولى.</p>';$('tt').innerHTML='';return}
+$('boq').innerHTML='<table><tr><th>البند</th><th>الوحدة</th><th class="n">الكمية</th><th class="n">سعر الوحدة</th><th class="n">الإجمالي</th></tr>'+r.map(x=>`<tr><td>${x.n}</td><td>${x.u}</td><td class="n"><input type="number" step="any" value="${x.q}" data-q="${x.k}"></td><td class="n"><input type="number" step="any" value="${x.p}" data-p="${x.k}"></td><td class="n">${f2(x.t)}</td></tr>`).join('')+'</table>';
+const t=sum(r);$('tt').innerHTML=`<div><span>المجموع</span><span>${f2(t.s)}</span></div><div><span>ضريبة 15%</span><span>${f2(t.v)}</span></div><div class="g"><span>الإجمالي</span><span>${f2(t.g)} ر.س</span></div>`;
+document.querySelectorAll('#boq input').forEach(n=>n.onchange=()=>{const d=n.dataset;if(d.q)Q[d.q]=+n.value;else P[d.p]=+n.value;boq()})}
+function tlv(a){const e=new TextEncoder();let b=[];a.forEach((v,i)=>{const d=e.encode(String(v));b.push(i+1,d.length,...d)});return btoa(String.fromCharCode(...b))}
+function doc(id,title,pre){const r=rows(),el=$(id);if(!r.length){el.innerHTML='<p class="mu">لا توجد كميات بعد.</p>';return}
+const t=sum(r),d=new Date(),no=pre+'-'+d.toISOString().slice(0,10).replace(/-/g,'')+'-001',sl=esc($('sl').value||'اسم الشركة');
+let qr='';if(pre=='INV'){const vn=$('vn').value||'000000000000000';qr=`<div class="qr">بيانات QR لهيئة الزكاة (TLV/Base64): ${tlv([$('sl').value||'الشركة',vn,d.toISOString(),t.g.toFixed(2),t.v.toFixed(2)])}<br>ملاحظة: رسم الـ QR والربط مع فاتورة المرحلة الثانية يُضافان في الإصدار القادم.</div>`}
+el.innerHTML=`<div class="hd"><div><h2>${title}</h2><div>${sl}</div></div><div class="mu">رقم: ${no}<br>التاريخ: ${d.toLocaleDateString('en-GB')}</div></div><p>العميل: ${esc($('cl').value||'-')}<br>المشروع: ${esc($('pj').value||'-')}</p><div class="tw"><table><tr><th>البند</th><th>الوحدة</th><th class="n">الكمية</th><th class="n">السعر</th><th class="n">الإجمالي</th></tr>`+r.map(x=>`<tr><td>${x.n}</td><td>${x.u}</td><td class="n">${x.q}</td><td class="n">${f2(x.p)}</td><td class="n">${f2(x.t)}</td></tr>`).join('')+`</table></div><div class="tot"><div><span>المجموع</span><span>${f2(t.s)}</span></div><div><span>ضريبة القيمة المضافة 15%</span><span>${f2(t.v)}</span></div><div class="g"><span>الإجمالي</span><span>${f2(t.g)} ر.س</span></div></div>`+(pre=='Q'?'<p class="mu">العرض ساري 15 يومًا. الكميات حسب المخططات المرفقة.</p>':qr)}
+['cl','pj','sl','vn'].forEach(i=>$(i).oninput=()=>{const a=document.querySelector('section.on').id;if(a=='s2')doc('q','عرض سعر','Q');if(a=='s3')doc('iv','فاتورة ضريبية','INV')});
+$('f').onchange=e=>{const f=e.target.files[0];if(!f)return;if(!/\.dxf$/i.test(f.name)){$('msg').innerHTML='<p class="warn">الملف ليس DXF. احفظ مخطط DWG بصيغة DXF ثم ارفعه.</p>';return}f.text().then(run)};
+$('demo').onclick=()=>{let s='0\nSECTION\n2\nENTITIES\n';
+const ins=(b,l,n)=>{for(let i=0;i<n;i++)s+=`0\nINSERT\n8\n${l}\n2\n${b}\n10\n${i*3000}\n20\n0\n`};
+ins('SPRINKLER_PENDENT','FP-HEAD',24);ins('SMOKE_DET','FA-DEV',10);ins('MCP','FA-DEV',3);ins('EXIT_SIGN','EM',4);ins('FIRE_EXT','FF',5);ins('EMG_LIGHT','EM',6);ins('HORN_STROBE','FA-DEV',2);ins('XYZ_UNKNOWN','0',1);
+s+='0\nLINE\n8\nFP-PIPE\n10\n0\n20\n0\n11\n72000\n21\n0\n0\nLINE\n8\nFP-PIPE\n10\n0\n20\n0\n11\n0\n21\n18000\n';
+s+='0\nLWPOLYLINE\n8\nFA-CABLE\n90\n3\n70\n0\n10\n0\n20\n0\n10\n30000\n20\n0\n10\n30000\n20\n12000\n0\nENDSEC\n0\nEOF\n';
+$('unit').value='0.001';run(s)};
+</script></body></html>
