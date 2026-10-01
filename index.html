@@ -31,7 +31,8 @@ items:[I('sp','رشاش حريق Sprinkler','عدد',25,38,['sprink','رشاش']
 I('mc','نقطة نداء يدوي MCP','عدد',95,150,['mcp','call','نداء']),I('sn','جرس/فلاش Sounder-Strobe','عدد',140,210,['sounder','strobe','جرس']),I('hc','صندوق حريق Hose Cabinet','عدد',450,650,['hose','fhc','صندوق']),
 I('ex','طفاية حريق Extinguisher','عدد',280,390,['ext','طفاي']),I('p2','ماسورة 2" Pipe','م',38,55,[]),I('p4','ماسورة 4" Pipe','م',85,120,[]),I('vl','محبس Valve','عدد',210,320,['valve','محبس']),
 I('es','لوحة مخرج Exit Sign','عدد',60,95,['exit','مخرج']),I('el','إنارة طوارئ Emergency Light','عدد',75,120,['emerg','إنارة'])]};
-S.method='auto';S.cl=[];
+S.method='lib';S.cl=[];S.lib=[];S.ex=[];
+try{S.lib=JSON.parse(localStorage.getItem('lib')||'[]')}catch(e){}
 try{S.key=localStorage.getItem('k')||'';S.model=localStorage.getItem('m')||S.model}catch(e){}
 const $=s=>document.querySelector(s),f=n=>(+n||0).toLocaleString('en-US',{maximumFractionDigits:2}),W=t=>`<span class="wn">${t}</span>`,G=t=>`<span class="ok">${t}</span>`;
 let PDF=null,IMG=null;const PG={};
@@ -47,14 +48,19 @@ $('#app').innerHTML=[up,tbl,()=>doc('عرض سعر',S.qn,'qn'),()=>doc('فاتو
 function up(){return `<div class="card"><div class="row"><input type="file" accept=".dxf,.pdf,.png,.jpg,.jpeg" onchange="loadF(this.files[0])"><button onclick="demo()">جرّب مخططًا تجريبيًا</button></div>
 <div class="row"><label>وحدة الرسم <select onchange="S.unit=+this.value"><option value=".001" ${S.unit==.001?'selected':''}>مليمتر</option><option value=".01" ${S.unit==.01?'selected':''}>سنتيمتر</option><option value="1" ${S.unit==1?'selected':''}>متر</option></select></label></div>
 <p class="mu">DXF: حصر آلي دقيق وسريع. PDF والصور: حصر بالذكاء الاصطناعي (يحلل المخطط ويضع علامة على كل عنصر) ثم تراجعه بصريًا. DWG احفظه DXF.</p>
-<div class="row"><b>طريقة الحصر:</b>${[['auto','🔍 مطابقة تلقائية'],['ai','🤖 ذكاء اصطناعي'],['man','✋ يدوي']].map(([k,t])=>`<button class="${S.method==k?'on':''}" onclick="S.method='${k}';keep()">${t}</button>`).join('')}</div>
-${S.method=='ai'?`<div class="row"><b>🤖 الذكاء الاصطناعي</b><input type="password" placeholder="مفتاح Anthropic API" value="${S.key}" style="flex:1;min-width:200px" onchange="S.key=this.value.trim();try{localStorage.setItem('k',S.key)}catch(e){}">
+<div class="row"><b>طريقة الحصر:</b>${[['lib','📖 مكتبة الرموز'],['auto','🔍 اكتشاف تلقائي'],['ai','🤖 ذكاء اصطناعي'],['man','✋ يدوي']].map(([k,t])=>`<button class="${S.method==k?'on':''}" onclick="S.method='${k}';keep()">${t}</button>`).join('')}</div>
+${S.method=='lib'?LIBP():S.method=='ai'?`<div class="row"><b>🤖 الذكاء الاصطناعي</b><input type="password" placeholder="مفتاح Anthropic API" value="${S.key}" style="flex:1;min-width:200px" onchange="S.key=this.value.trim();try{localStorage.setItem('k',S.key)}catch(e){}">
 <input value="${S.model}" style="width:170px" onchange="S.model=this.value.trim();try{localStorage.setItem('m',S.model)}catch(e){}"><button class="pri" onclick="aiRun()">حصر بالذكاء الاصطناعي</button></div>`:S.method=='auto'?'<div class="row"><button class="pri" onclick="autoDetect()">ابدأ المطابقة التلقائية</button><span class="mu">يكتشف كل الرموز المتكررة في المخطط ويعرضها، فتسمّي كل نوع مرة واحدة ويُحصى كله.</span></div>':'<div class="mu">انقر على كل رمز لحصره، أو استخدم «🎯 تعلّم رمز بالسحب».</div>'}
 <p id="msg" style="margin:8px 0 0">${S.msg}</p>${S.cl.length?`<div style="margin-top:10px"><b>رموز مكتشفة (${S.cl.length})</b> <button class="pri" onclick="accAll()">اعتماد كل المسمّى</button>
 ${S.cl.map((c,k)=>`<div class="cl"><img src="${c.img}"><b>×${c.m.length}</b><select id="cs${k}"><option value="">— اختر الصنف —</option>${S.items.map(i=>`<option value="${i.id}">${i.n}</option>`).join('')}</select><button onclick="acc(${k})">اعتماد</button><button onclick="S.cl.splice(${k},1);keep()">تجاهل</button></div>`).join('')}</div>`:''}</div>
 ${S.np?`<div class="card"><div class="row"><b>المخطط</b><select onchange="S.cur=this.value">${S.items.map(i=>`<option value="${i.id}" ${S.cur==i.id?'selected':''}>${i.n}</option>`).join('')}</select>
-<button onclick="pgGo(-1)">◀</button><span>${S.pn}/${S.np}</span><button onclick="pgGo(1)">▶</button><button class="${S.learn?'on':''}" onclick="S.learn=!S.learn;keep()">🎯 تعلّم رمز بالسحب</button><button onclick="S.mk.pop();syncQ();keep()">تراجع</button><button onclick="S.mk=[];S.tc=new Set();S.items.forEach(i=>i.q=0);keep()">مسح</button><span class="mu">العلامات: ${S.mk.length} (🔵 ذكاء اصطناعي، 🟢 مطابقة، 🔴 يدوي)</span></div>
-<div class="tw"><canvas id="cv" style="max-width:100%;cursor:crosshair;touch-action:none" onclick="mark(event)" onpointerdown="ds(event)" onpointerup="de(event)"></canvas></div>${S.learn?'<div class="wn">🎯 اختر الصنف من القائمة ثم اسحب مستطيلًا ضيقًا حول رمز واحد؛ سيبحث النظام عن كل الرموز المشابهة في الصفحات (الرمز بنفس الحجم والاتجاه).</div>':''}<div class="mu">للتصحيح: اختر الصنف وانقر على الرمز الناقص؛ وللحذف انقر بزر الفأرة الأيمن على العلامة.</div></div>`:''}`}
+<button onclick="pgGo(-1)">◀</button><span>${S.pn}/${S.np}</span><button onclick="pgGo(1)">▶</button><button class="${S.learn?'on':''}" onclick="S.learn=S.learn?0:'sym';keep()">🎯 تعريف رمز</button><button onclick="S.mk.pop();syncQ();keep()">تراجع</button><button onclick="S.mk=[];S.tc=new Set();S.items.forEach(i=>i.q=0);keep()">مسح</button><span class="mu">العلامات: ${S.mk.length} (🔵 ذكاء اصطناعي، 🟢 اكتشاف، 🟣 مكتبة، 🔴 يدوي)</span></div>
+<div class="tw"><canvas id="cv" style="max-width:100%;cursor:crosshair;touch-action:none" onclick="mark(event)" onpointerdown="ds(event)" onpointerup="de(event)"></canvas></div>${S.learn=='sym'?'<div class="wn">🎯 اختر الصنف من القائمة ثم اسحب مستطيلًا ضيقًا حول رمز واحد (من الجدول أو المخطط) ليُضاف إلى المكتبة.</div>':S.learn=='ex'?'<div class="wn">🚫 اسحب مستطيلًا حول جدول الرموز أو الختم لاستثنائه من الحصر.</div>':''}<div class="mu">للتصحيح: اختر الصنف وانقر على الرمز الناقص؛ وللحذف انقر بزر الفأرة الأيمن على العلامة.</div></div>`:''}`}
+const nm=id=>(S.items.find(i=>i.id==id)||{}).n;
+function LIBP(){return `<div class="row"><button onclick="legendRead()">📖 قراءة جدول الرموز من المخطط</button><button onclick="legendAI()">🤖 قراءته بالذكاء الاصطناعي</button><button class="${S.learn=='sym'?'on':''}" onclick="S.learn=S.learn=='sym'?0:'sym';keep()">🎯 تعريف رمز بالسحب</button><button class="${S.learn=='ex'?'on':''}" onclick="S.learn=S.learn=='ex'?0:'ex';keep()">🚫 استثناء منطقة</button><button class="pri" onclick="runLib()">🔎 حصر بالمكتبة</button></div>
+<div class="row"><input type="password" placeholder="مفتاح API (للقراءة بالذكاء الاصطناعي فقط)" value="${S.key}" style="flex:1;min-width:200px" onchange="S.key=this.value.trim();try{localStorage.setItem('k',S.key)}catch(e){}"></div>
+<div class="mu">تُقرأ رموز الجدول المرفق بالمخطط (من النص أو بالذكاء الاصطناعي) أو تعرّفها أنت بالسحب، ثم يُحصى كل ما يطابقها. مكتبتك (<b>${S.lib.length}</b> رمز):</div>
+<div class="row">${S.lib.map((e,k)=>`<div class="cl" style="border:0"><img src="${e.img}"><span>${nm(e.id)}</span><button onclick="S.lib.splice(${k},1);saveLib();keep()">✕</button></div>`).join('')||'<span class="mu">فارغة.</span>'}</div>`}
 function tbl(){return `<div class="card"><div class="tw"><table><tr><th>#</th><th>الصنف</th><th>الوحدة</th><th>الكمية</th><th>سعر الشراء</th><th>سعر البيع</th><th>الإجمالي</th><th>الثقة</th></tr>
 ${S.items.map((i,k)=>`<tr><td>${k+1}</td><td>${i.n}</td><td>${i.u}</td><td><input type="number" min="0" id="q${k}" value="${i.q}" oninput="S.items[${k}].q=+this.value;upd()"></td>
 <td><input type="number" min="0" value="${i.c}" oninput="S.items[${k}].c=+this.value;upd()"></td><td><input type="number" min="0" value="${i.p}" oninput="S.items[${k}].p=+this.value;upd()"></td><td id="rt${k}"></td>
@@ -68,7 +74,7 @@ ${r.map((i,k)=>`<tr><td>${k+1}</td><td>${i.n}</td><td>${i.u}</td><td>${f(i.q)}</
 ${key=='qn'?'<h4>الشروط</h4><ul class="mu"><li>العرض ساري 15 يومًا.</li><li>الأسعار بالريال السعودي.</li><li>الدفع: 50% مقدمًا والباقي عند الاستلام.</li></ul>':''}
 <div class="row" style="justify-content:space-between;margin-top:26px"><span>التوقيع: ________</span><span>الختم</span></div></div>`}
 /* ---- ملفات ---- */
-function reset(){S.items.forEach(i=>{i.q=0;i.cf=0;i.ok=false});S.mk=[];S.tc=new Set();S.cl=[]}
+function reset(){S.items.forEach(i=>{i.q=0;i.cf=0;i.ok=false});S.mk=[];S.tc=new Set();S.cl=[];S.ex=[];S.lib=S.lib.filter(e=>!e.leg)}
 function loadF(file){if(!file)return;const n=file.name;if(/\.pdf$/i.test(n))return loadPDF(file);if(/\.(png|jpe?g)$/i.test(n))return loadImg(file);
 if(!/\.dxf$/i.test(n)){S.msg=W('⚠️ صيغة غير مدعومة. استخدم DXF أو PDF أو صورة (DWG احفظه DXF).');return render()}
 const r=new FileReader();r.onload=()=>{try{S.np=0;applyDXF(parseDXF(r.result))}catch(e){S.msg=W('تعذر قراءة الملف.');render()}};r.readAsText(file)}
@@ -94,18 +100,18 @@ async function loadPDF(file){S.msg='⏳ جاري قراءة المخطط...';ren
 try{if(!window.pdfjsLib)throw new Error('lib/pdf.js غير موجود بجانب index.html');PDF=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false}).promise;
 for(const k in PG)delete PG[k];IMG=null;S.np=PDF.numPages;S.pn=1;reset();await getPage(1);const tc=await textCount();S.msg=G(`✔ تم فتح ${S.np} صفحة.`)+' '+(tc.n?G(`عُثر على ${tc.n} صنف من النصوص (قد تشمل جدول المفاتيح، راجعها).`):tc.tx?W('في الملف نصوص لكنها لا تطابق أسماء الأصناف.'):W('المخطط صورة/ممسوح بدون نصوص قابلة للقراءة.'));render();autoAI()}
 catch(e){console.error(e);S.np=0;S.msg=`<span class="er">⚠️ تعذر فتح الـPDF (${e&&e.message||e}). جرّب صورة للمخطط.</span>`;render()}}
-function autoAI(){if(S.method=='auto')autoDetect();else if(S.method=='ai'&&S.key)aiRun();else if(S.method=='man'){render()}else{S.msg+='<br>'+W('للحصر الآلي بدون مفتاح: اضغط «🎯 تعلّم رمز بالسحب» وحدّد رمزًا واحدًا. أو أدخل مفتاح API للحصر بالذكاء الاصطناعي.');render()}}
+function autoAI(){if(S.method=='lib')libFlow();else if(S.method=='auto')autoDetect();else if(S.method=='ai'&&S.key)aiRun();else if(S.method=='man'){render()}else{S.msg+='<br>'+W('للحصر الآلي بدون مفتاح: اضغط «🎯 تعلّم رمز بالسحب» وحدّد رمزًا واحدًا. أو أدخل مفتاح API للحصر بالذكاء الاصطناعي.');render()}}
 /* ---- العلامات ---- */
 function syncQ(){S.items.forEach(i=>{if(S.tc.has(i.id)||S.mk.some(m=>m.id==i.id)){S.tc.add(i.id);i.q=S.mk.filter(m=>m.id==i.id).length}})}
 function mark(e){if(S.learn)return;const r=e.target.getBoundingClientRect();S.mk.push({p:S.pn,x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height,id:S.cur});const it=S.items.find(i=>i.id==S.cur);it.cf=100;syncQ();keep()}
 function drawV(){const c=$('#cv'),B=PG[S.pn];if(!c||!B)return;c.width=B.width;c.height=B.height;const g=c.getContext('2d');g.drawImage(B,0,0);g.font='bold 14px Tahoma';g.textAlign='center';g.textBaseline='middle';const cnt={};
-S.mk.filter(m=>m.p==S.pn).forEach(m=>{cnt[m.id]=(cnt[m.id]||0)+1;g.fillStyle=m.ai==2?'rgba(30,160,90,.85)':m.ai?'rgba(30,110,230,.85)':'rgba(220,40,30,.85)';g.beginPath();g.arc(m.x*c.width,m.y*c.height,11,0,7);g.fill();g.fillStyle='#fff';g.fillText(cnt[m.id],m.x*c.width,m.y*c.height)})}
+S.mk.filter(m=>m.p==S.pn).forEach(m=>{cnt[m.id]=(cnt[m.id]||0)+1;g.fillStyle=m.ai==3?'rgba(150,80,200,.85)':m.ai==2?'rgba(30,160,90,.85)':m.ai?'rgba(30,110,230,.85)':'rgba(220,40,30,.85)';g.beginPath();g.arc(m.x*c.width,m.y*c.height,11,0,7);g.fill();g.fillStyle='#fff';g.fillText(cnt[m.id],m.x*c.width,m.y*c.height)});g.strokeStyle='#e0a94a';g.setLineDash([8,6]);g.lineWidth=2;S.ex.filter(r=>r.p==S.pn).forEach(r=>g.strokeRect(r.x0*c.width,r.y0*c.height,(r.x1-r.x0)*c.width,(r.y1-r.y0)*c.height))}
 document.addEventListener('contextmenu',e=>{if(e.target.id!='cv')return;e.preventDefault();const r=e.target.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
 let b=-1,bd=.02;S.mk.forEach((m,k)=>{if(m.p!=S.pn)return;const d=Math.hypot(m.x-x,m.y-y);if(d<bd){bd=d;b=k}});if(b>=0){S.mk.splice(b,1);syncQ();keep()}});
 /* ---- الذكاء الاصطناعي ---- */
-async function askAI(cv,p){const sc=Math.min(1,1568/Math.max(cv.width,cv.height)),t=document.createElement('canvas');t.width=Math.round(cv.width*sc);t.height=Math.round(cv.height*sc);t.getContext('2d').drawImage(cv,0,0,t.width,t.height);
+async function askAI(cv,p,cu){const sc=Math.min(1,1568/Math.max(cv.width,cv.height)),t=document.createElement('canvas');t.width=Math.round(cv.width*sc);t.height=Math.round(cv.height*sc);t.getContext('2d').drawImage(cv,0,0,t.width,t.height);
 const b64=t.toDataURL('image/jpeg',.85).split(',')[1];let tx='';try{if(PDF){const c=await (await PDF.getPage(p)).getTextContent();tx=c.items.map(i=>i.str).join(' ').slice(0,2500)}}catch(e){}
-const prompt=`أنت مهندس حصر كميات لأنظمة مكافحة الحريق والإنذار والسلامة. هذه صفحة من مخطط دفاع مدني. اقرأ جدول الرموز (Legend) إن وُجد، ثم عُدّ كل رمز في المخطط نفسه (لا تعدّ رموز جدول المفاتيح).
+const prompt=cu||`أنت مهندس حصر كميات لأنظمة مكافحة الحريق والإنذار والسلامة. هذه صفحة من مخطط دفاع مدني. اقرأ جدول الرموز (Legend) إن وُجد، ثم عُدّ كل رمز في المخطط نفسه (لا تعدّ رموز جدول المفاتيح).
 الأصناف (id: الاسم):
 ${S.items.filter(i=>i.u=='عدد').map(i=>i.id+': '+i.n).join('\n')}
 ${tx?'نصوص مستخرجة من الصفحة:\n'+tx+'\n':''}أعد JSON فقط بلا أي شرح بهذا الشكل:
@@ -132,24 +138,63 @@ let DS=null;
 function ds(e){if(!S.learn)return;const r=e.target.getBoundingClientRect();DS=[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]}
 function de(e){if(!S.learn||!DS)return;const r=e.target.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
 const a=[Math.min(DS[0],x),Math.min(DS[1],y),Math.abs(x-DS[0]),Math.abs(y-DS[1])];DS=null;if(a[2]*r.width<8||a[3]*r.height<8)return;
-S.msg='⏳ جاري البحث عن الرموز المشابهة...';const m=$('#msg');if(m)m.textContent=S.msg;setTimeout(()=>matchT(a),30)}
-function gray(cv,s){const t=document.createElement('canvas');t.width=Math.round(cv.width*s);t.height=Math.round(cv.height*s);const g=t.getContext('2d');g.drawImage(cv,0,0,t.width,t.height);
+if(S.learn=='ex'){S.ex.push({p:S.pn,x0:a[0],y0:a[1],x1:a[0]+a[2],y1:a[1]+a[3]});S.msg=G('✔ تم استثناء المنطقة من الحصر.')}
+else{const B=PG[S.pn];addSym(S.cur,B,a[0]*B.width,a[1]*B.height,(a[0]+a[2])*B.width,(a[1]+a[3])*B.height,S.pn,0);S.msg=G(`✔ أُضيف الرمز للمكتبة (${nm(S.cur)}). عرّف باقي الرموز ثم اضغط «حصر بالمكتبة».`)}keep()}
+function gray(cv,s,bl){const t=document.createElement('canvas');t.width=Math.round(cv.width*s);t.height=Math.round(cv.height*s);const g=t.getContext('2d');if(bl)g.filter='blur('+bl+'px)';g.drawImage(cv,0,0,t.width,t.height);
 const d=g.getImageData(0,0,t.width,t.height).data,o=new Float32Array(t.width*t.height);for(let i=0;i<o.length;i++)o[i]=.3*d[i*4]+.59*d[i*4+1]+.11*d[i*4+2];return{o,d,w:t.width,h:t.height}}
-async function matchT(a){try{const B=PG[S.pn],s=Math.min(1,1100/Math.max(B.width,B.height)),gp=gray(B,s),TH=.8;
-let tx=Math.floor(a[0]*gp.w),ty=Math.floor(a[1]*gp.h);const tw=Math.max(6,Math.floor(a[2]*gp.w)),th=Math.max(6,Math.floor(a[3]*gp.h));tx=Math.min(tx,gp.w-tw);ty=Math.min(ty,gp.h-th);
-const st=Math.max(1,Math.floor(Math.min(tw,th)/12)),pts=[];for(let j=0;j<th;j+=st)for(let i=0;i<tw;i+=st)pts.push([i,j,gp.o[(ty+j)*gp.w+tx+i]]);
-const n=pts.length;let ts=0,tq=0;pts.forEach(p=>{ts+=p[2];tq+=p[2]*p[2]});const tm=ts/n,tsd=Math.sqrt(tq/n-tm*tm);
-if(tsd<5)throw new Error('المنطقة المحددة فارغة، حدّد رمزًا واضحًا');
-const N=Math.min(S.np,10);let found=0,sc=0;const dmin=.5*Math.max(tw,th);
+/* ---- مكتبة الرموز ---- */
+function saveLib(){try{localStorage.setItem('lib',JSON.stringify(S.lib.filter(e=>!e.leg).map(e=>({id:e.id,img:e.img}))))}catch(e){}}
+function tplCv(e){return e.cv?Promise.resolve(e.cv):new Promise(r=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;c.getContext('2d').drawImage(im,0,0);e.cv=c;r(c)};im.src=e.img})}
+function addSym(id,B,x0,y0,x1,y1,p,leg){x0=Math.max(0,Math.floor(x0));y0=Math.max(0,Math.floor(y0));x1=Math.min(B.width,Math.ceil(x1));y1=Math.min(B.height,Math.ceil(y1));const w=x1-x0,h=y1-y0;if(w<8||h<8)return null;
+const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(B,x0,y0,w,h,0,0,w,h);const e={id,img:c.toDataURL(),cv:c,leg:leg?1:0,src:{p,x:(x0+x1)/2/B.width,y:(y0+y1)/2/B.height}};S.lib.push(e);if(!leg)saveLib();return e}
+function bbs(g){const w=g.w,h=g.h,bin=new Uint8Array(w*h),st=new Int32Array(w*h),o=[];for(let i=0;i<bin.length;i++)bin[i]=g.o[i]<170?1:0;
+for(let i0=0;i0<bin.length&&o.length<30000;i0++){if(bin[i0]!=1)continue;let sp=0,x0=1e9,y0=1e9,x1=-1,y1=-1;st[sp++]=i0;bin[i0]=2;
+while(sp){const i=st[--sp],x=i%w,y=(i/w)|0;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;for(let dy=-1;dy<=1;dy++){const yy=y+dy;if(yy<0||yy>=h)continue;for(let dx=-1;dx<=1;dx++){const xx=x+dx,j=yy*w+xx;if(xx>=0&&xx<w&&bin[j]==1){bin[j]=2;st[sp++]=j}}}}
+const bw=x1-x0+1,bh=y1-y0+1;if(bw>=6&&bh>=6&&bw<=150&&bh<=150)o.push([x0,y0,x1,y1])}return o}
+async function legendRead(auto){if(!PDF){if(!auto){S.msg=W('القراءة من النص تتطلب PDF يحتوي نصوصًا. جرّب «قراءته بالذكاء الاصطناعي» أو عرّف الرموز بالسحب.');render()}return 0}
+S.lib=S.lib.filter(e=>!e.leg);S.ex=S.ex.filter(r=>!r.leg);const got={};let n=0;
+if(!auto){S.msg='⏳ قراءة جدول الرموز...';render();await new Promise(r=>setTimeout(r,30))}
+for(let p=1;p<=Math.min(S.np,10);p++){const pg=await PDF.getPage(p),vp=pg.getViewport({scale:1}),B=await getPage(p),k=B.width/vp.width,tc=await pg.getTextContent(),labs=[];
+tc.items.forEach(t=>{const x=t.str.toLowerCase();if(!x.trim())return;const it=S.items.find(i=>i.u=='عدد'&&i.kw.some(w=>x.includes(w)));if(it&&!got[it.id])labs.push({it,t})});if(!labs.length)continue;
+const cs=bbs(gray(B,1));let rx0=1e9,ry0=1e9,rx1=0,ry1=0,np=0;
+for(const {it,t} of labs){if(got[it.id])continue;const [px,py]=vp.convertToViewportPoint(t.transform[4],t.transform[5]),L=px*k,R=L+t.width*k,h=Math.max(10,(t.height||10)*k),ym=py*k-h/2;let best=null,bd=1e9;
+for(const c of cs){const cy=(c[1]+c[3])/2;if(Math.abs(cy-ym)>Math.max(h,16)||Math.max(c[2]-c[0],c[3]-c[1])<h*.95)continue;const gap=c[2]<L?L-c[2]:c[0]>R?c[0]-R:1e9;if(gap<bd&&gap<=120){bd=gap;best=c}}
+if(best&&addSym(it.id,B,best[0]-2,best[1]-2,best[2]+3,best[3]+3,p,1)){got[it.id]=1;n++;np++;rx0=Math.min(rx0,best[0],L);ry0=Math.min(ry0,best[1]);rx1=Math.max(rx1,best[2],R);ry1=Math.max(ry1,best[3])}}
+if(np>=2)S.ex.push({p,x0:Math.max(0,rx0-40)/B.width,y0:Math.max(0,ry0-40)/B.height,x1:Math.min(B.width,rx1+40)/B.width,y1:Math.min(B.height,ry1+40)/B.height,leg:1})}
+S.msg=n?G(`✔ قُرئ ${n} رمز من جدول الرموز (راجعها في المكتبة).`):W('لم يُعثر على جدول رموز يمكن قراءته من النص.');if(!auto)render();return n}
+async function legendAI(){if(!S.np){S.msg=W('ارفع مخططًا أولًا.');return render()}if(!S.key){S.msg=W('أدخل مفتاح API لاستخدام الذكاء الاصطناعي.');return render()}
+S.lib=S.lib.filter(e=>!e.leg);S.ex=S.ex.filter(r=>!r.leg);let n=0;const cu=`هذه صفحة من مخطط حريق وسلامة. ابحث عن جدول الرموز (Legend) إن وُجد، وأعد لكل بند يطابق أحد الأصناف مستطيل الرمز وحده (دون النص المجاور) ملتصقًا به بدقة، ومستطيل الجدول كاملًا.
+الأصناف:\n${S.items.filter(i=>i.u=='عدد').map(i=>i.id+': '+i.n).join('\n')}
+أعد JSON فقط: {"symbols":[{"id":"<id>","box":[x0,y0,x1,y1]}],"legend":[x0,y0,x1,y1] أو null} بإحداثيات نسبية 0..1 (x من اليسار، y من الأعلى). إن لم يوجد جدول أعد symbols فارغة.`;
+try{for(let p=1;p<=Math.min(S.np,10);p++){S.msg=`⏳ قراءة الجدول بالذكاء الاصطناعي: صفحة ${p}...`;const m=$('#msg');if(m)m.textContent=S.msg;const B=await getPage(p),j=await askAI(B,p,cu);
+(j.symbols||[]).forEach(q=>{if(S.items.some(i=>i.id==q.id)&&Array.isArray(q.box)&&q.box.length==4&&!S.lib.some(e=>e.leg&&e.id==q.id)&&addSym(q.id,B,q.box[0]*B.width,q.box[1]*B.height,q.box[2]*B.width,q.box[3]*B.height,p,1))n++});
+if(Array.isArray(j.legend)&&j.legend.length==4&&(j.symbols||[]).length)S.ex.push({p,x0:j.legend[0],y0:j.legend[1],x1:j.legend[2],y1:j.legend[3],leg:1})}
+S.msg=n?G(`✔ قُرئ ${n} رمز من الجدول بالذكاء الاصطناعي. احذف ما كان خاطئًا من المكتبة (✕) ثم «حصر بالمكتبة».`):W('لم يجد الذكاء الاصطناعي جدول رموز. عرّف الرموز بالسحب.')}
+catch(e){S.msg=`<span class="er">⚠️ ${e.message}</span>`}render()}
+async function libFlow(){await legendRead(1);if(S.lib.length)return runLib();S.msg=W('لم يُقرأ جدول رموز من النص. اضغط «قراءته بالذكاء الاصطناعي» أو عرّف الرموز بالسحب 🎯 ثم «حصر بالمكتبة».');render()}
+async function runLib(){if(!S.np||!S.lib.length){S.msg=W('مكتبة الرموز فارغة: اقرأ جدول الرموز أو عرّف رمزًا بالسحب أولًا.');return render()}
+S.msg='⏳ الحصر بالمكتبة...';render();await new Promise(r=>setTimeout(r,30));
+try{S.mk=S.mk.filter(m=>m.ai!=3);const N=Math.min(S.np,10),TH=.72,sc={},cn={};
 for(let p=1;p<=N;p++){const m=$('#msg');if(m)m.textContent=`⏳ مطابقة صفحة ${p}/${N}...`;await new Promise(r=>setTimeout(r,0));
-const g=p==S.pn?gp:gray(await getPage(p),s),res=[];
-for(let y=0;y+th<=g.h;y++)for(let x=0;x+tw<=g.w;x++){let sum=0,sq=0,sx=0;for(let k=0;k<n;k++){const q=pts[k],v=g.o[(y+q[1])*g.w+x+q[0]];sum+=v;sq+=v*v;sx+=v*q[2]}
-const mm=sum/n,vr=sq/n-mm*mm;if(vr<25)continue;const c=(sx/n-mm*tm)/(Math.sqrt(vr)*tsd);if(c>TH)res.push([c,x,y])}
-res.sort((u,v)=>v[0]-u[0]);const acc=[];for(const r of res){if(acc.length>=400)break;if(acc.every(q=>Math.hypot(q[1]-r[1],q[2]-r[2])>dmin))acc.push(r)}
-acc.forEach(r=>{const cx=(r[1]+tw/2)/g.w,cy=(r[2]+th/2)/g.h;if(S.mk.some(m=>m.p==p&&m.id==S.cur&&Math.hypot((m.x-cx)*g.w,(m.y-cy)*g.h)<dmin))return;S.mk.push({p,x:cx,y:cy,id:S.cur,ai:2});found++;sc+=r[0]})}
-S.tc.add(S.cur);syncQ();const it=S.items.find(i=>i.id==S.cur);it.cf=found?Math.round(sc/found*100):0;it.ok=false;
-S.msg=found?G(`✔ عُثر على ${found} رمز مشابه (🟢) للصنف المحدد. راجع العلامات وصحّح عند الحاجة.`):W('لم يُعثر على رموز مشابهة. جرّب تحديدًا أضيق حول الرمز نفسه.')}
-catch(e){S.msg=`<span class="er">⚠️ ${e.message}</span>`}keep()}
+const B=await getPage(p),s=Math.min(1,900/Math.max(B.width,B.height)),g=gray(B,s,.8);
+for(const e of S.lib){const T=gray(await tplCv(e),s,.8),tw=T.w,th=T.h;if(tw<6||th<6||tw>g.w/2||th>g.h/2)continue;
+const sk=Math.max(1,Math.floor(Math.sqrt(tw*th/100))),pts=[];for(let j=0;j<th;j+=sk)for(let i=0;i<tw;i+=sk)pts.push([i,j,T.o[j*tw+i]]);
+const n=pts.length;let ts=0,tq=0;pts.forEach(q=>{ts+=q[2];tq+=q[2]*q[2]});const tm=ts/n,tsd=Math.sqrt(tq/n-tm*tm);if(tsd<5)continue;
+const ncc=(x,y)=>{let sum=0,sq=0,sx=0;for(let k=0;k<n;k++){const q=pts[k],v=g.o[(y+q[1])*g.w+x+q[0]];sum+=v;sq+=v*v;sx+=v*q[2]}const mm=sum/n,vr=sq/n-mm*mm;return vr<25?-1:(sx/n-mm*tm)/(Math.sqrt(vr)*tsd)};
+const chrom=(D,w,ox,oy)=>{let r=0,gg=0,b=0;for(const q of pts){const i=((oy+q[1])*w+ox+q[0])*4,wt=765-D[i]-D[i+1]-D[i+2];r+=D[i]*wt;gg+=D[i+1]*wt;b+=D[i+2]*wt}const t=r+gg+b||1;return[r/t,gg/t,b/t]},tcol=chrom(T.d,tw,0,0);
+const res=[];for(let y=0;y+th<=g.h;y+=2)for(let x=0;x+tw<=g.w;x+=2){let bc=ncc(x,y);if(bc<.55)continue;let bx=x,by=y;
+for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx+tw>g.w||ny+th>g.h)continue;const c=ncc(nx,ny);if(c>bc){bc=c;bx=nx;by=ny}}
+if(bc>TH){const wc=chrom(g.d,g.w,bx,by);if(Math.hypot(wc[0]-tcol[0],wc[1]-tcol[1],wc[2]-tcol[2])<.15)res.push([bc,bx,by])}}
+res.sort((a,b)=>b[0]-a[0]);const dmin=.5*Math.max(tw,th),acc=[];
+for(const r of res){if(acc.length>=500)break;const cx=(r[1]+tw/2)/g.w,cy=(r[2]+th/2)/g.h;
+if(S.lib.some(q=>q.src.p==p&&Math.abs(q.src.x-cx)*g.w<tw&&Math.abs(q.src.y-cy)*g.h<th))continue;
+if(S.ex.some(q=>q.p==p&&cx>=q.x0&&cx<=q.x1&&cy>=q.y0&&cy<=q.y1))continue;
+if(acc.some(q=>Math.hypot(q[1]-r[1],q[2]-r[2])<dmin))continue;
+if(S.mk.some(q=>q.p==p&&q.id==e.id&&Math.hypot((q.x-cx)*g.w,(q.y-cy)*g.h)<dmin))continue;acc.push(r)}
+acc.forEach(r=>{S.mk.push({p,x:(r[1]+tw/2)/g.w,y:(r[2]+th/2)/g.h,id:e.id,ai:3});sc[e.id]=(sc[e.id]||0)+r[0];cn[e.id]=(cn[e.id]||0)+1})}}
+const ids=[...new Set(S.lib.map(e=>e.id))];ids.forEach(id=>{S.tc.add(id)});syncQ();ids.forEach(id=>{const it=S.items.find(i=>i.id==id);it.cf=cn[id]?Math.round(sc[id]/cn[id]*100):0;it.ok=false});
+S.msg=G(`✔ الحصر بالمكتبة: ${ids.map(id=>nm(id).split(' ')[0]+' '+(cn[id]||0)).join('، ')}. راجع العلامات 🟣 على المخطط.`)}
+catch(e){console.error(e);S.msg=`<span class="er">⚠️ ${e.message}</span>`}render()}
 /* ---- مطابقة تلقائية: اكتشاف الرموز المتكررة ---- */
 function acc(k,quiet){const c=S.cl[k],id=($('#cs'+k)||{}).value;if(!id){if(!quiet){S.msg=W('اختر الصنف أولًا.');keep()}return false}
 c.m.forEach(m=>S.mk.push({p:m.p,x:m.x,y:m.y,id,ai:2}));S.tc.add(id);syncQ();const it=S.items.find(i=>i.id==id);it.cf=Math.round(c.sim*100);it.ok=false;S.cl.splice(k,1);if(!quiet)keep();return true}
