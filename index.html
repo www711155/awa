@@ -1,150 +1,125 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>حاصر | نظام حصر وتسعير مخططات الدفاع المدني</title>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>حصر كميات مخططات الدفاع المدني</title>
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#6a737d;--bd:#e1e4e8;--ac:#c8321f;--ok:#1a7f4b;--wn:#b7791f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171a;--card:#1d2126;--tx:#e8eaed;--mu:#99a1ab;--bd:#2c3238;--ac:#ef5a45;--ok:#3fb27a;--wn:#e0a94a}}
-:root[data-theme="dark"]{--bg:#14171a;--card:#1d2126;--tx:#e8eaed;--mu:#99a1ab;--bd:#2c3238;--ac:#ef5a45;--ok:#3fb27a;--wn:#e0a94a}
-*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--tx);font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px}
-header{background:var(--card);border-bottom:1px solid var(--bd);padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-size:19px;margin:0;color:var(--ac)}h1 small{color:var(--mu);font-weight:400;font-size:12px;display:block}
-nav{display:flex;gap:6px;flex-wrap:wrap;margin-inline-start:auto}
-button,.btn{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:7px 13px;border-radius:8px;cursor:pointer}
-button.on,button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
-main{max-width:1050px;margin:0 auto;padding:16px}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
-.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-.kp div{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px}
-.kp b{display:block;font-size:20px;margin-top:4px}.kp span{color:var(--mu);font-size:12px}
-.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:640px}
-th,td{padding:8px;border-bottom:1px solid var(--bd);text-align:start;font-size:14px}th{color:var(--mu);font-weight:600;font-size:12px}
-input,select{font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:6px;padding:5px 7px;max-width:100%}
-td input[type=number]{width:84px}td input.nm{width:100%;min-width:150px}
-.drop{border:2px dashed var(--bd);border-radius:12px;padding:16px;text-align:center;color:var(--mu)}
-.tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;background:var(--bg)}
-.ok{color:var(--ok)}.wn{color:var(--wn)}
+:root{--bg:#0d1218;--cd:#141b24;--bd:#263140;--tx:#e6eaf0;--mu:#8b97a8;--ac:#d6334f;--ok:#3fb27a;--wn:#e0a94a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px}
+main{max-width:1000px;margin:0 auto;padding:18px}h1{font-size:23px;margin:6px 0}.mu{color:var(--mu);font-size:13px}
+nav{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+nav button{padding:14px 6px;font-size:15px}
+button,.btn{font:inherit;color:var(--tx);background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:8px 14px;cursor:pointer}
+button.on{border-color:var(--ac);box-shadow:inset 0 -2px 0 var(--ac)}button.pri{background:var(--ac);border-color:var(--ac)}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+input,select{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:7px 9px;max-width:100%}
+input[type=file]{flex:1;min-width:200px}td input[type=number]{width:88px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:620px}th,td{padding:8px;border-bottom:1px solid var(--bd);text-align:start;font-size:14px}th{color:var(--mu);font-size:12px}
+.ok{color:var(--ok)}.wn{color:var(--wn)}.er{color:var(--ac)}.tag{border-radius:99px;padding:2px 9px;font-size:12px;background:var(--bg)}
 .tot{max-width:340px;margin-inline-start:auto}.tot div{display:flex;justify-content:space-between;padding:4px 0}
 .tot .g{font-weight:700;font-size:17px;border-top:2px solid var(--tx);margin-top:4px;padding-top:8px}
-.int{border:1px dashed var(--wn);border-radius:10px;padding:10px;margin-top:12px;font-size:14px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
-@media print{header,.noprint{display:none!important}body{background:#fff;color:#000}.card{border:0}main{padding:0}}
-</style><script src="lib/pdf.js"></script>
-<script src="lib/pdf.worker.js"></script>
-</head><body>
-<header><h1>🔥 حاصر<small>من المخطط إلى الكميات والتسعير</small></h1>
-<nav class="noprint" id="nav"></nav></header>
-<main id="app"></main>
+.int{border:1px dashed var(--wn);border-radius:8px;padding:10px;margin-top:12px;font-size:14px}
+@media print{nav,.np,h1,.mu.top{display:none!important}body{background:#fff;color:#000}.card{border:0;background:#fff}td,th{color:#000}}
+</style>
+<script src="lib/pdf.js"></script><script src="lib/pdf.worker.js"></script></head><body><main>
+<h1>حصر كميات مخططات الدفاع المدني</h1><div class="mu top">نموذج أولي: من ملف DXF أو PDF إلى جدول كميات ثم عرض سعر وفاتورة — الحصر بالذكاء الاصطناعي</div>
+<nav id="nav" class="np"></nav><div id="app"></div></main>
 <script>
-const I=(id,n,u,c,p,q,cf,kw)=>({id,n,u,c,p,q,cf,kw,ok:false});
-let S={tab:0,disc:0,vat:15,cli:'',qn:'Q-2026-001',msg:'',scale:0.001,
-items:[
-I('sp','رشاش حريق Sprinkler ½"','عدد',25,38,86,96,['sprink','رشاش']),
-I('sd','كاشف دخان Smoke Detector','عدد',120,185,42,91,['smoke','دخان']),
-I('hd','كاشف حرارة Heat Detector','عدد',110,170,18,78,['heat','حرار']),
-I('mc','نقطة نداء يدوي MCP','عدد',95,150,12,94,['mcp','call','نداء']),
-I('sn','جرس/فلاش Sounder-Strobe','عدد',140,210,14,82,['sounder','strobe','جرس']),
-I('hc','صندوق حريق Hose Cabinet 1½"','عدد',450,650,9,97,['hose','fhc','صندوق']),
-I('ex','طفاية CO₂ 5 كجم','عدد',280,390,24,88,['ext','طفاي']),
-I('p2','ماسورة 2" Pipe','م',38,55,210,72,[]),
-I('p4','ماسورة 4" Pipe','م',85,120,72,90,[]),
-I('vl','محبس Valve','عدد',210,320,16,93,['valve','محبس']),
-I('es','لوحة مخرج طوارئ Exit','عدد',60,95,20,95,['exit','مخرج']),
-I('el','إنارة طوارئ Emergency Light','عدد',75,120,20,93,['emerg','إنارة'])]};
-const $=s=>document.querySelector(s),f=n=>(+n||0).toLocaleString('en-US',{maximumFractionDigits:2});
-const TABS=['لوحة التحكم','الحصر BOQ','قاعدة الأسعار','عرض السعر'];
-const rev=i=>i.cf<85&&!i.ok&&i.q>0;
-function T(){let s=0,c=0;S.items.forEach(i=>{s+=i.q*i.p;c+=i.q*i.c});const d=s*S.disc/100,net=s-d,v=net*S.vat/100;
-return{s,c,d,net,v,tot:net+v,pr:net-c,mg:net?(net-c)/net*100:0,rv:S.items.filter(rev).length}}
-function totalsHTML(int){const t=T();return `<div class="tot"><div><span>المجموع</span><span>${f(t.s)}</span></div>
-<div><span>الخصم (${S.disc}%)</span><span>${f(t.d)}</span></div><div><span>قبل الضريبة</span><span>${f(t.net)}</span></div>
-<div><span>ضريبة القيمة المضافة ${S.vat}%</span><span>${f(t.v)}</span></div><div class="g"><span>الإجمالي النهائي (ريال)</span><span>${f(t.tot)}</span></div></div>`+
-(int?`<div class="int">🔒 داخلي فقط (لا يظهر للعميل): التكلفة ${f(t.c)} — صافي الربح <b>${f(t.pr)}</b> ريال — الهامش <b>${f(t.mg)}%</b></div>`:'')}
+const I=(id,n,u,c,p,kw)=>({id,n,u,c,p,q:0,cf:0,kw,ok:false});
+const S={tab:0,unit:.01,disc:0,vat:15,cur:'sp',mk:[],tc:new Set(),pn:1,np:0,msg:'',cli:'',qn:'Q-2026-001',inv:'INV-2026-001',vn:'',key:'',model:'claude-sonnet-5-5',
+items:[I('sp','رشاش حريق Sprinkler','عدد',25,38,['sprink','رشاش']),I('sd','كاشف دخان Smoke Detector','عدد',120,185,['smoke','دخان']),I('hd','كاشف حرارة Heat Detector','عدد',110,170,['heat','حرار']),
+I('mc','نقطة نداء يدوي MCP','عدد',95,150,['mcp','call','نداء']),I('sn','جرس/فلاش Sounder-Strobe','عدد',140,210,['sounder','strobe','جرس']),I('hc','صندوق حريق Hose Cabinet','عدد',450,650,['hose','fhc','صندوق']),
+I('ex','طفاية حريق Extinguisher','عدد',280,390,['ext','طفاي']),I('p2','ماسورة 2" Pipe','م',38,55,[]),I('p4','ماسورة 4" Pipe','م',85,120,[]),I('vl','محبس Valve','عدد',210,320,['valve','محبس']),
+I('es','لوحة مخرج Exit Sign','عدد',60,95,['exit','مخرج']),I('el','إنارة طوارئ Emergency Light','عدد',75,120,['emerg','إنارة'])]};
+try{S.key=localStorage.getItem('k')||'';S.model=localStorage.getItem('m')||S.model}catch(e){}
+const $=s=>document.querySelector(s),f=n=>(+n||0).toLocaleString('en-US',{maximumFractionDigits:2}),W=t=>`<span class="wn">${t}</span>`,G=t=>`<span class="ok">${t}</span>`;
+let PDF=null,IMG=null;const PG={};
+const rev=i=>i.q>0&&i.cf<85&&!i.ok;
+function T(){let s=0,c=0;S.items.forEach(i=>{s+=i.q*i.p;c+=i.q*i.c});const d=s*S.disc/100,n=s-d,v=n*S.vat/100;return{s,c,d,n,v,t:n+v,pr:n-c,mg:n?(n-c)/n*100:0}}
+function tots(int){const t=T();return `<div class="tot"><div><span>المجموع</span><span>${f(t.s)}</span></div><div><span>الخصم (${S.disc}%)</span><span>${f(t.d)}</span></div><div><span>قبل الضريبة</span><span>${f(t.n)}</span></div><div><span>ضريبة القيمة المضافة ${S.vat}%</span><span>${f(t.v)}</span></div><div class="g"><span>الإجمالي النهائي (ريال)</span><span>${f(t.t)}</span></div></div>`+(int?`<div class="int">🔒 داخلي فقط: التكلفة ${f(t.c)} — صافي الربح <b>${f(t.pr)}</b> — الهامش <b>${f(t.mg)}%</b></div>`:'')}
 function upd(){S.items.forEach((i,k)=>{const e=$('#rt'+k);if(e)e.textContent=f(i.q*i.p);const q=$('#q'+k);if(q&&document.activeElement!==q)q.value=i.q});
-const a=$('#tb');if(a)a.innerHTML=totalsHTML(1);const b=$('#qt');if(b)b.innerHTML=totalsHTML(0);
-const r=$('#rvn');if(r)r.textContent=T().rv}
+const a=$('#tb');if(a)a.innerHTML=tots(1);const b=$('#qt');if(b)b.innerHTML=tots(0);const r=$('#rvn');if(r)r.textContent=S.items.filter(rev).length}
 function go(n){S.tab=n;render()}
-function render(){$('#nav').innerHTML=TABS.map((t,i)=>`<button class="${S.tab==i?'on':''}" onclick="go(${i})">${t}</button>`).join('');
-$('#app').innerHTML=[dash,boq,prices,quote][S.tab]();upd();if(S.tab==1&&S.view)drawV()}
-function dash(){const t=T(),n=S.items.filter(i=>i.q>0).length,tot=S.items.reduce((a,i)=>a+i.q,0);
-const rl=S.items.filter(rev);
-return `<div class="kp"><div><span>أصناف محصورة</span><b>${n}</b></div><div><span>إجمالي العناصر</span><b>${f(tot)}</b></div>
-<div><span>قيمة العرض</span><b>${f(t.tot)}</b></div><div><span>صافي الربح</span><b>${f(t.pr)}</b></div>
-<div><span>هامش الربح</span><b>${f(t.mg)}%</b></div><div><span>تحتاج مراجعة</span><b class="wn">${rl.length}</b></div></div>
-<div class="card" style="margin-top:14px"><h3 style="margin-top:0">⚠️ عناصر تحتاج مراجعة</h3>${rl.length?rl.map(i=>`<div class="row"><span>${i.n} — ${f(i.q)} ${i.u}</span><span class="tag wn">ثقة ${i.cf}%</span><button onclick="S.items.find(x=>x.id=='${i.id}').ok=true;render()">اعتماد</button></div>`).join(''):'<span class="ok">✔ كل العناصر معتمدة</span>'}</div>`}
-function boq(){return `<div class="card noprint"><div class="drop"><div class="row" style="justify-content:center">
-<label>وحدة الرسم: <select onchange="S.scale=+this.value"><option value="0.001" ${S.scale==.001?'selected':''}>mm</option><option value="0.01" ${S.scale==.01?'selected':''}>cm</option><option value="1" ${S.scale==1?'selected':''}>m</option></select></label>
-<input type="file" accept=".dxf,.pdf,.png,.jpg,.jpeg" onchange="loadF(this.files[0])"></div>
-<div>DXF: حصر آلي للرموز والمواسير. PDF أو صورة: يظهر المخطط وتحدد عليه العناصر بالنقر، وإن كان الـPDF يحتوي نصوصًا فيُحصى منها تلقائيًا. (DWG: حوّله إلى DXF أو PDF)</div></div>
-<p id="msg" style="margin:10px 0 0">${S.msg}</p></div>
-${S.view?`<div class="card noprint"><div class="row"><b>تحديد العناصر على المخطط</b>
-<select onchange="S.cur=this.value">${S.items.map(i=>`<option value="${i.id}" ${S.cur==i.id?'selected':''}>${i.n}</option>`).join('')}</select>
-<button onclick="pgGo(-1)">◀</button><span>صفحة ${S.pn}/${S.np}</span><button onclick="pgGo(1)">▶</button>
-<button onclick="S.mk.pop();syncQ();keep()">تراجع</button><button onclick="S.mk=[];syncQ();keep()">مسح العلامات</button><span>العلامات: ${S.mk.length}</span></div>
-<div class="tw"><canvas id="cv" style="max-width:100%;cursor:crosshair;border:1px solid var(--bd)" onclick="mark(event)"></canvas></div>
-<small style="color:var(--mu)">اختر الصنف ثم انقر على كل رمز في المخطط؛ الكمية تُحدَّث تلقائيًا.</small></div>`:''}
-<div class="card"><div class="tw"><table><tr><th>#</th><th>الصنف</th><th>الوحدة</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th><th>الثقة</th></tr>
-${S.items.map((i,k)=>`<tr><td>${k+1}</td><td>${i.n}</td><td>${i.u}</td><td><input type="number" min="0" value="${i.q}" id="q${k}" oninput="S.items[${k}].q=+this.value;upd()"></td>
-<td><input type="number" min="0" value="${i.p}" oninput="S.items[${k}].p=+this.value;upd()"></td><td id="rt${k}"></td>
-<td>${rev(i)?`<button onclick="S.items[${k}].ok=true;render()">⚠️ ${i.cf}% اعتماد</button>`:`<span class="tag ok">✔ ${i.cf}%</span>`}</td></tr>`).join('')}</table></div>
-<div class="row noprint" style="margin-top:10px"><label>خصم % <input type="number" min="0" max="100" value="${S.disc}" style="width:70px" oninput="S.disc=+this.value;upd()"></label>
-<span>عناصر تحتاج مراجعة: <b id="rvn" class="wn"></b></span></div><div id="tb"></div></div>`}
-function prices(){return `<div class="card"><div class="tw"><table><tr><th>الصنف</th><th>الوحدة</th><th>سعر الشراء</th><th>سعر البيع</th><th>الهامش</th></tr>
-${S.items.map((i,k)=>`<tr><td><input class="nm" value="${i.n}" onchange="S.items[${k}].n=this.value"></td><td><input value="${i.u}" style="width:60px" onchange="S.items[${k}].u=this.value"></td>
-<td><input type="number" value="${i.c}" oninput="S.items[${k}].c=+this.value;this.closest('tr').lastElementChild.textContent=mg(${k});upd()"></td>
-<td><input type="number" value="${i.p}" oninput="S.items[${k}].p=+this.value;this.closest('tr').lastElementChild.textContent=mg(${k});upd()"></td><td>${mg(k)}</td></tr>`).join('')}</table></div>
-<button class="pri" style="margin-top:10px" onclick="S.items.push(I('n'+Date.now(),'صنف جديد','عدد',0,0,0,100,[]));render()">+ إضافة صنف</button></div>`}
-const mg=k=>{const i=S.items[k];return i.p?f((i.p-i.c)/i.p*100)+'%':'-'};
-function quote(){const r=S.items.filter(i=>i.q>0);
-return `<div class="row noprint"><input placeholder="اسم العميل" value="${S.cli}" onchange="S.cli=this.value;render()"><input value="${S.qn}" onchange="S.qn=this.value;render()" style="width:130px">
-<button class="pri" onclick="print()">طباعة / حفظ PDF</button></div>
-<div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0;color:var(--ac)">عرض سعر</h2><div>رقم العرض: ${S.qn}<br>التاريخ: ${new Date().toLocaleDateString('en-GB')}</div></div>
-<p><b>العميل:</b> ${S.cli||'—'}</p><div class="tw"><table><tr><th>#</th><th>الوصف</th><th>الوحدة</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr>
-${r.map((i,k)=>`<tr><td>${k+1}</td><td>${i.n}</td><td>${i.u}</td><td>${f(i.q)}</td><td>${f(i.p)}</td><td>${f(i.q*i.p)}</td></tr>`).join('')}</table></div>
-<div id="qt" style="margin-top:12px"></div>
-<h4>الشروط والأحكام</h4><ul style="color:var(--mu);font-size:13px"><li>العرض ساري 15 يومًا من تاريخه.</li><li>الأسعار بالريال السعودي وتشمل التركيب ولا تشمل أعمال غير مذكورة.</li><li>الدفع: 50% دفعة مقدمة والباقي عند الاستلام.</li></ul>
-<div class="row" style="justify-content:space-between;margin-top:30px"><span>التوقيع: ____________</span><span>الختم</span></div></div>`}
-function loadF(file){if(!file)return;const nm=file.name;if(/\.pdf$/i.test(nm))return loadPDF(file);if(/\.(png|jpe?g)$/i.test(nm))return loadImg(file);
-if(!/\.dxf$/i.test(nm)){S.msg='<span class="wn">⚠️ صيغة غير مدعومة. استخدم DXF أو PDF أو صورة.</span>';return render()}
-const r=new FileReader();r.onload=()=>{try{applyDXF(parseDXF(r.result))}catch(e){S.msg='<span class="wn">تعذر قراءة الملف.</span>';render()}};r.readAsText(file)}
-function parseDXF(t){const L=t.split(/\r?\n/),out=[];let e=null,on=false;
-for(let i=0;i+1<L.length;i+=2){const c=+L[i].trim(),v=L[i+1].trim();
-if(c==0){if(v=='ENDSEC'||v=='SECTION'){on=false;e=null;continue}e=on?{t:v,p:[],x:null}:null;if(e)out.push(e);continue}
-if(c==2&&v=='ENTITIES'&&!e){on=true;continue}if(!e)continue;
-if(c==8)e.l=v;else if(c==2&&!e.n)e.n=v;else if(c==10||c==11)e.x=+v;else if(c==20||c==21)e.p.push([e.x,+v])}
-return out}
-function applyDXF(es){S.items.forEach(i=>{i.q=0;i.ok=false});const found={};let pm={p2:0,p4:0};
-const d=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
-es.forEach(e=>{const s=((e.n||'')+' '+(e.l||'')).toLowerCase();
-if(e.t=='INSERT'){const it=S.items.find(i=>i.kw.some(k=>s.includes(k)));if(it){it.q++;it.cf=95}}
-else if(/pipe|ماسورة|مواسير/.test(s)&&(e.t=='LINE'||e.t=='LWPOLYLINE')){let l=0;for(let k=1;k<e.p.length;k++)l+=d(e.p[k-1],e.p[k]);
-pm[/4|100|6|150/.test(e.l||'')?'p4':'p2']+=l*S.scale}});
-['p2','p4'].forEach(k=>{const it=S.items.find(i=>i.id==k);it.q=Math.round(pm[k]*10)/10;it.cf=it.q?70:100});
-const n=S.items.filter(i=>i.q>0).length;
-S.msg=n?`<span class="ok">✔ تم الحصر الآلي: ${n} صنف. راجع العناصر المعلّمة ⚠️ قبل الاعتماد.</span>`:'<span class="wn">لم يتم العثور على رموز معروفة. تأكد من أسماء البلوكات/الطبقات.</span>';render()}
-
-S.cur='sp';S.mk=[];S.tc=new Set();S.pn=1;S.np=1;S.view=0;let BG=null,PDF=null;
 function keep(){const y=scrollY;render();scrollTo(0,y)}
-function syncQ(){S.items.forEach(i=>{if(S.tc.has(i.id)||S.mk.some(m=>m.id==i.id)){S.tc.add(i.id);i.q=S.mk.filter(m=>m.id==i.id).length;i.cf=100}})}
-function mark(e){const r=e.target.getBoundingClientRect();S.mk.push({p:S.pn,x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height,id:S.cur});syncQ();keep()}
-function drawV(){const c=$('#cv');if(!c||!BG)return;c.width=BG.width;c.height=BG.height;const g=c.getContext('2d');g.drawImage(BG,0,0);
-const cnt={};g.font='bold 15px Tahoma';g.textAlign='center';g.textBaseline='middle';
-S.mk.filter(m=>m.p==S.pn).forEach(m=>{cnt[m.id]=(cnt[m.id]||0)+1;g.fillStyle='rgba(220,40,30,.85)';g.beginPath();g.arc(m.x*c.width,m.y*c.height,11,0,7);g.fill();g.fillStyle='#fff';g.fillText(cnt[m.id],m.x*c.width,m.y*c.height)})}
-async function showPage(n){S.pn=n;const pg=await PDF.getPage(n),vp=pg.getViewport({scale:1.8}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
-await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;BG=c;S.view=1;keep()}
-function pgGo(d){const n=S.pn+d;if(PDF&&n>=1&&n<=S.np)showPage(n)}
-function loadImg(file){const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;c.getContext('2d').drawImage(im,0,0);
-BG=c;PDF=null;S.np=1;S.pn=1;S.mk=[];S.view=1;S.msg='<span class="ok">✔ تم فتح الصورة. حدّد العناصر بالنقر على المخطط.</span>';render()};im.onerror=()=>{S.msg='<span class="wn">تعذر فتح الصورة.</span>';render()};im.src=URL.createObjectURL(file)}
+function render(){$('#nav').innerHTML=['رفع المخطط','جدول الكميات','عرض السعر','الفاتورة'].map((t,i)=>`<button class="${S.tab==i?'on':''}" onclick="go(${i})">${t}</button>`).join('');
+$('#app').innerHTML=[up,tbl,()=>doc('عرض سعر',S.qn,'qn'),()=>doc('فاتورة ضريبية',S.inv,'inv')][S.tab]();upd();if(S.tab==0&&S.np)drawV()}
+function up(){return `<div class="card"><div class="row"><input type="file" accept=".dxf,.pdf,.png,.jpg,.jpeg" onchange="loadF(this.files[0])"><button onclick="demo()">جرّب مخططًا تجريبيًا</button></div>
+<div class="row"><label>وحدة الرسم <select onchange="S.unit=+this.value"><option value=".001" ${S.unit==.001?'selected':''}>مليمتر</option><option value=".01" ${S.unit==.01?'selected':''}>سنتيمتر</option><option value="1" ${S.unit==1?'selected':''}>متر</option></select></label></div>
+<p class="mu">DXF: حصر آلي دقيق وسريع. PDF والصور: حصر بالذكاء الاصطناعي (يحلل المخطط ويضع علامة على كل عنصر) ثم تراجعه بصريًا. DWG احفظه DXF.</p>
+<div class="row"><b>🤖 الذكاء الاصطناعي</b><input type="password" placeholder="مفتاح Anthropic API" value="${S.key}" style="flex:1;min-width:200px" onchange="S.key=this.value.trim();try{localStorage.setItem('k',S.key)}catch(e){}">
+<input value="${S.model}" style="width:170px" onchange="S.model=this.value.trim();try{localStorage.setItem('m',S.model)}catch(e){}"><button class="pri" onclick="aiRun()">حصر بالذكاء الاصطناعي</button></div>
+<p id="msg" style="margin:8px 0 0">${S.msg}</p></div>
+${S.np?`<div class="card"><div class="row"><b>المخطط</b><select onchange="S.cur=this.value">${S.items.map(i=>`<option value="${i.id}" ${S.cur==i.id?'selected':''}>${i.n}</option>`).join('')}</select>
+<button onclick="pgGo(-1)">◀</button><span>${S.pn}/${S.np}</span><button onclick="pgGo(1)">▶</button><button onclick="S.mk.pop();syncQ();keep()">تراجع</button><button onclick="S.mk=[];S.tc=new Set();S.items.forEach(i=>i.q=0);keep()">مسح</button><span class="mu">العلامات: ${S.mk.length} (🔵 ذكاء اصطناعي، 🔴 يدوي)</span></div>
+<div class="tw"><canvas id="cv" style="max-width:100%;cursor:crosshair" onclick="mark(event)"></canvas></div><div class="mu">للتصحيح: اختر الصنف وانقر على الرمز الناقص؛ وللحذف انقر بزر الفأرة الأيمن على العلامة.</div></div>`:''}`}
+function tbl(){return `<div class="card"><div class="tw"><table><tr><th>#</th><th>الصنف</th><th>الوحدة</th><th>الكمية</th><th>سعر الشراء</th><th>سعر البيع</th><th>الإجمالي</th><th>الثقة</th></tr>
+${S.items.map((i,k)=>`<tr><td>${k+1}</td><td>${i.n}</td><td>${i.u}</td><td><input type="number" min="0" id="q${k}" value="${i.q}" oninput="S.items[${k}].q=+this.value;upd()"></td>
+<td><input type="number" min="0" value="${i.c}" oninput="S.items[${k}].c=+this.value;upd()"></td><td><input type="number" min="0" value="${i.p}" oninput="S.items[${k}].p=+this.value;upd()"></td><td id="rt${k}"></td>
+<td>${!i.q?'-':rev(i)?`<button onclick="S.items[${k}].ok=true;render()">⚠️ ${i.cf}% اعتماد</button>`:`<span class="tag ok">✔ ${i.cf||100}%</span>`}</td></tr>`).join('')}</table></div>
+<div class="row" style="margin-top:10px"><label>خصم % <input type="number" min="0" max="100" value="${S.disc}" style="width:70px" oninput="S.disc=+this.value;upd()"></label><span>تحتاج مراجعة: <b id="rvn" class="wn"></b></span></div><div id="tb"></div></div>`}
+function doc(title,no,key){const r=S.items.filter(i=>i.q>0);return `<div class="row np"><input placeholder="اسم العميل" value="${S.cli}" onchange="S.cli=this.value;render()"><input value="${no}" style="width:140px" onchange="S['${key}']=this.value;render()">
+${key=='inv'?`<input placeholder="الرقم الضريبي" value="${S.vn}" onchange="S.vn=this.value;render()">`:''}<button class="pri" onclick="print()">طباعة / حفظ PDF</button></div>
+<div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0;color:var(--ac)">${title}</h2><div>الرقم: ${no}<br>التاريخ: ${new Date().toLocaleDateString('en-GB')}</div></div>
+<p><b>العميل:</b> ${S.cli||'—'} ${key=='inv'&&S.vn?` &nbsp; <b>الرقم الضريبي:</b> ${S.vn}`:''}</p>${r.length?`<div class="tw"><table><tr><th>#</th><th>الوصف</th><th>الوحدة</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr>
+${r.map((i,k)=>`<tr><td>${k+1}</td><td>${i.n}</td><td>${i.u}</td><td>${f(i.q)}</td><td>${f(i.p)}</td><td>${f(i.q*i.p)}</td></tr>`).join('')}</table></div><div id="qt" style="margin-top:12px"></div>`:'<p class="mu">لا توجد كميات بعد. ارفع مخططًا أولًا.</p>'}
+${key=='qn'?'<h4>الشروط</h4><ul class="mu"><li>العرض ساري 15 يومًا.</li><li>الأسعار بالريال السعودي.</li><li>الدفع: 50% مقدمًا والباقي عند الاستلام.</li></ul>':''}
+<div class="row" style="justify-content:space-between;margin-top:26px"><span>التوقيع: ________</span><span>الختم</span></div></div>`}
+/* ---- ملفات ---- */
+function reset(){S.items.forEach(i=>{i.q=0;i.cf=0;i.ok=false});S.mk=[];S.tc=new Set()}
+function loadF(file){if(!file)return;const n=file.name;if(/\.pdf$/i.test(n))return loadPDF(file);if(/\.(png|jpe?g)$/i.test(n))return loadImg(file);
+if(!/\.dxf$/i.test(n)){S.msg=W('⚠️ صيغة غير مدعومة. استخدم DXF أو PDF أو صورة (DWG احفظه DXF).');return render()}
+const r=new FileReader();r.onload=()=>{try{S.np=0;applyDXF(parseDXF(r.result))}catch(e){S.msg=W('تعذر قراءة الملف.');render()}};r.readAsText(file)}
+function parseDXF(t){const L=t.split(/\r?\n/),o=[];let e=null,on=false;for(let i=0;i+1<L.length;i+=2){const c=+L[i].trim(),v=L[i+1].trim();
+if(c==0){if(v=='ENDSEC'||v=='SECTION'){on=false;e=null;continue}e=on?{t:v,p:[],x:null}:null;if(e)o.push(e);continue}
+if(c==2&&v=='ENTITIES'&&!e){on=true;continue}if(!e)continue;
+if(c==8)e.l=v;else if(c==2&&!e.n)e.n=v;else if(c==10||c==11)e.x=+v;else if(c==20||c==21)e.p.push([e.x,+v])}return o}
+function applyDXF(es,demoMsg){reset();const pm={p2:0,p4:0},d=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+es.forEach(e=>{const s=((e.n||'')+' '+(e.l||'')).toLowerCase();if(e.t=='INSERT'){const it=S.items.find(i=>i.kw.some(k=>s.includes(k)));if(it){it.q++;it.cf=95}}
+else if(/pipe|ماسورة|مواسير/.test(s)&&(e.t=='LINE'||e.t=='LWPOLYLINE')){let l=0;for(let k=1;k<e.p.length;k++)l+=d(e.p[k-1],e.p[k]);pm[/4|100|6|150/.test(e.l||'')?'p4':'p2']+=l*S.unit}});
+['p2','p4'].forEach(k=>{const it=S.items.find(i=>i.id==k);it.q=Math.round(pm[k]*10)/10;it.cf=it.q?70:0});
+const n=S.items.filter(i=>i.q>0).length;S.msg=n?G(`✔ ${demoMsg?'مخطط تجريبي — ':''}تم حصر ${n} صنف من DXF. راجع النتائج في «جدول الكميات».`):W('لم يتم العثور على رموز معروفة. تأكد من أسماء البلوكات/الطبقات.');render()}
+function demo(){const a=[],A=(...x)=>a.push(...x);A(0,'SECTION',2,'ENTITIES');for(let k=0;k<10;k++)A(0,'INSERT',8,'FP-SPRINKLER',2,'SPRINKLER',10,k*1000,20,500);
+for(let k=0;k<5;k++)A(0,'INSERT',8,'FP-DETECTORS',2,'SMOKE_DET',10,k*1500,20,3000);for(let k=0;k<2;k++)A(0,'INSERT',8,'FP-EXTINGUISHER',2,'EXT_CO2',10,k*800,20,100);
+A(0,'LWPOLYLINE',8,'FP-PIPE-2',90,3,10,0,20,0,10,12000,20,0,10,12000,20,8000,0,'ENDSEC',0,'EOF');S.np=0;S.unit=.001;applyDXF(parseDXF(a.join('\n')),1)}
+async function getPage(n){if(PG[n])return PG[n];let c;if(IMG)c=IMG;else{const pg=await PDF.getPage(n),v1=pg.getViewport({scale:1}),sc=Math.min(3,2000/Math.max(v1.width,v1.height)),vp=pg.getViewport({scale:sc});
+c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise}return PG[n]=c}
+async function showPage(n){S.pn=n;await getPage(n);keep()}
+function pgGo(d){const n=S.pn+d;if(n>=1&&n<=S.np)showPage(n)}
+function loadImg(file){const im=new Image();im.onload=async()=>{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;c.getContext('2d').drawImage(im,0,0);
+for(const k in PG)delete PG[k];IMG=c;PDF=null;S.np=1;S.pn=1;reset();await getPage(1);S.msg=G('✔ تم فتح الصورة.');render();autoAI()};im.onerror=()=>{S.msg=W('تعذر فتح الصورة.');render()};im.src=URL.createObjectURL(file)}
 async function loadPDF(file){S.msg='⏳ جاري قراءة المخطط...';render();
-try{if(!window.pdfjsLib)throw new Error('lib/pdf.js غير موجود بجانب index.html');
-PDF=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false}).promise;S.np=PDF.numPages;S.mk=[];S.tc=new Set();
-const cn={};let tx=0;
-for(let p=1;p<=S.np;p++){const tc=await (await PDF.getPage(p)).getTextContent();tc.items.forEach(t=>{const x=t.str.toLowerCase();if(!x.trim())return;tx++;
-const it=S.items.find(i=>i.kw.some(k=>x.includes(k)));if(it)cn[it.id]=(cn[it.id]||0)+1})}
-const ids=Object.keys(cn);ids.forEach(id=>{const it=S.items.find(i=>i.id==id);it.q=cn[id];it.cf=60;it.ok=false});
-S.msg=tx?`<span class="ok">✔ تم فتح ${S.np} صفحة. عُثر على ${ids.length} صنف من النصوص (تحتاج مراجعة، وقد تشمل جدول المفاتيح). أكمل الحصر بالنقر على المخطط.</span>`
-:'<span class="wn">⚠️ المخطط ممسوح/صورة بدون نصوص: استخدم التحديد اليدوي بالنقر.</span>';
-await showPage(1)}catch(e){console.error(e);S.msg='<span class="wn">⚠️ تعذر فتح الـPDF ('+(e&&e.message||e)+'). جرّب صورة للمخطط.</span>';render()}}
+try{if(!window.pdfjsLib)throw new Error('lib/pdf.js غير موجود بجانب index.html');PDF=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false}).promise;
+for(const k in PG)delete PG[k];IMG=null;S.np=PDF.numPages;S.pn=1;reset();await getPage(1);S.msg=G(`✔ تم فتح ${S.np} صفحة.`);render();autoAI()}
+catch(e){console.error(e);S.np=0;S.msg=`<span class="er">⚠️ تعذر فتح الـPDF (${e&&e.message||e}). جرّب صورة للمخطط.</span>`;render()}}
+function autoAI(){if(S.key)aiRun();else{S.msg+=' '+W('أدخل مفتاح API ثم اضغط «حصر بالذكاء الاصطناعي» لحصر المخطط تلقائيًا، أو حدّد العناصر بالنقر.');render()}}
+/* ---- العلامات ---- */
+function syncQ(){S.items.forEach(i=>{if(S.tc.has(i.id)||S.mk.some(m=>m.id==i.id)){S.tc.add(i.id);i.q=S.mk.filter(m=>m.id==i.id).length}})}
+function mark(e){const r=e.target.getBoundingClientRect();S.mk.push({p:S.pn,x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height,id:S.cur});const it=S.items.find(i=>i.id==S.cur);it.cf=100;syncQ();keep()}
+function drawV(){const c=$('#cv'),B=PG[S.pn];if(!c||!B)return;c.width=B.width;c.height=B.height;const g=c.getContext('2d');g.drawImage(B,0,0);g.font='bold 14px Tahoma';g.textAlign='center';g.textBaseline='middle';const cnt={};
+S.mk.filter(m=>m.p==S.pn).forEach(m=>{cnt[m.id]=(cnt[m.id]||0)+1;g.fillStyle=m.ai?'rgba(30,110,230,.85)':'rgba(220,40,30,.85)';g.beginPath();g.arc(m.x*c.width,m.y*c.height,11,0,7);g.fill();g.fillStyle='#fff';g.fillText(cnt[m.id],m.x*c.width,m.y*c.height)})}
+document.addEventListener('contextmenu',e=>{if(e.target.id!='cv')return;e.preventDefault();const r=e.target.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+let b=-1,bd=.02;S.mk.forEach((m,k)=>{if(m.p!=S.pn)return;const d=Math.hypot(m.x-x,m.y-y);if(d<bd){bd=d;b=k}});if(b>=0){S.mk.splice(b,1);syncQ();keep()}});
+/* ---- الذكاء الاصطناعي ---- */
+async function askAI(cv,p){const sc=Math.min(1,1568/Math.max(cv.width,cv.height)),t=document.createElement('canvas');t.width=Math.round(cv.width*sc);t.height=Math.round(cv.height*sc);t.getContext('2d').drawImage(cv,0,0,t.width,t.height);
+const b64=t.toDataURL('image/jpeg',.85).split(',')[1];let tx='';try{if(PDF){const c=await (await PDF.getPage(p)).getTextContent();tx=c.items.map(i=>i.str).join(' ').slice(0,2500)}}catch(e){}
+const prompt=`أنت مهندس حصر كميات لأنظمة مكافحة الحريق والإنذار والسلامة. هذه صفحة من مخطط دفاع مدني. اقرأ جدول الرموز (Legend) إن وُجد، ثم عُدّ كل رمز في المخطط نفسه (لا تعدّ رموز جدول المفاتيح).
+الأصناف (id: الاسم):
+${S.items.filter(i=>i.u=='عدد').map(i=>i.id+': '+i.n).join('\n')}
+${tx?'نصوص مستخرجة من الصفحة:\n'+tx+'\n':''}أعد JSON فقط بلا أي شرح بهذا الشكل:
+{"points":{"<id>":[[x,y],...]},"conf":{"<id>":0-100},"pipes_m":{"p2":رقم أو null,"p4":رقم أو null},"notes":["..."]}
+x وy إحداثيات نسبية بين 0 و1 (x من اليسار، y من الأعلى) لمركز كل رمز، ونقطة واحدة لكل رمز. conf ثقتك في كمية الصنف. pipes_m أطوال المواسير بالمتر فقط إن كان مقياس الرسم مقروءًا وإلا null. اذكر في notes أي غموض أو رموز غير واضحة.`;
+const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':S.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+body:JSON.stringify({model:S.model,max_tokens:8000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:prompt}]}]})});
+const d=await r.json();if(!r.ok)throw new Error(d.error&&d.error.message||('HTTP '+r.status));const s=d.content.map(c=>c.text||'').join('');return JSON.parse(s.slice(s.indexOf('{'),s.lastIndexOf('}')+1))}
+async function aiRun(){if(!S.np){S.msg=W('ارفع مخطط PDF أو صورة أولًا (DXF يُحصر تلقائيًا).');return render()}
+if(!S.key){S.msg=W('أدخل مفتاح Anthropic API أولًا.');return render()}
+reset();const notes=[],cfs={};let pip={p2:0,p4:0};const N=Math.min(S.np,10);
+try{for(let p=1;p<=N;p++){S.msg=`⏳ الذكاء الاصطناعي يحلل صفحة ${p}/${N}...`;const m=$('#msg');if(m)m.textContent=S.msg;const j=await askAI(await getPage(p),p);
+S.items.forEach(it=>{const a=(j.points||{})[it.id];if(Array.isArray(a)){a.forEach(q=>{if(Array.isArray(q)&&q.length>=2&&q[0]>=0&&q[0]<=1&&q[1]>=0&&q[1]<=1)S.mk.push({p,x:+q[0],y:+q[1],id:it.id,ai:1})});
+const c=(j.conf||{})[it.id];(cfs[it.id]=cfs[it.id]||[]).push(typeof c=='number'?c:75)}});
+['p2','p4'].forEach(k=>{if(j.pipes_m&&typeof j.pipes_m[k]=='number')pip[k]+=j.pipes_m[k]});(j.notes||[]).forEach(x=>notes.push(`ص${p}: ${x}`))}
+syncQ();S.items.forEach(it=>{if(cfs[it.id])it.cf=Math.round(cfs[it.id].reduce((a,b)=>a+b,0)/cfs[it.id].length)});
+['p2','p4'].forEach(k=>{if(pip[k]>0){const it=S.items.find(i=>i.id==k);it.q=Math.round(pip[k]*10)/10;it.cf=60}});
+const n=S.items.filter(i=>i.q>0).length;S.msg=G(`✔ حصر الذكاء الاصطناعي: ${n} صنف و${S.mk.length} علامة${S.np>N?` (أول ${N} صفحات فقط)`:''}. راجع العلامات 🔵 على المخطط وصحّحها.`)+(notes.length?`<br><span class="mu">ملاحظات: ${notes.join(' | ')}</span>`:'');if(S.pn>N)S.pn=1}
+catch(e){console.error(e);S.msg=`<span class="er">⚠️ فشل الحصر بالذكاء الاصطناعي: ${e.message}</span>`}render()}
 render();
 </script></body></html>
