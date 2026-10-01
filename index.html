@@ -49,8 +49,8 @@ function up(){return `<div class="card"><div class="row"><input type="file" acce
 <input value="${S.model}" style="width:170px" onchange="S.model=this.value.trim();try{localStorage.setItem('m',S.model)}catch(e){}"><button class="pri" onclick="aiRun()">حصر بالذكاء الاصطناعي</button></div>
 <p id="msg" style="margin:8px 0 0">${S.msg}</p></div>
 ${S.np?`<div class="card"><div class="row"><b>المخطط</b><select onchange="S.cur=this.value">${S.items.map(i=>`<option value="${i.id}" ${S.cur==i.id?'selected':''}>${i.n}</option>`).join('')}</select>
-<button onclick="pgGo(-1)">◀</button><span>${S.pn}/${S.np}</span><button onclick="pgGo(1)">▶</button><button onclick="S.mk.pop();syncQ();keep()">تراجع</button><button onclick="S.mk=[];S.tc=new Set();S.items.forEach(i=>i.q=0);keep()">مسح</button><span class="mu">العلامات: ${S.mk.length} (🔵 ذكاء اصطناعي، 🔴 يدوي)</span></div>
-<div class="tw"><canvas id="cv" style="max-width:100%;cursor:crosshair" onclick="mark(event)"></canvas></div><div class="mu">للتصحيح: اختر الصنف وانقر على الرمز الناقص؛ وللحذف انقر بزر الفأرة الأيمن على العلامة.</div></div>`:''}`}
+<button onclick="pgGo(-1)">◀</button><span>${S.pn}/${S.np}</span><button onclick="pgGo(1)">▶</button><button class="${S.learn?'on':''}" onclick="S.learn=!S.learn;keep()">🎯 تعلّم رمز بالسحب</button><button onclick="S.mk.pop();syncQ();keep()">تراجع</button><button onclick="S.mk=[];S.tc=new Set();S.items.forEach(i=>i.q=0);keep()">مسح</button><span class="mu">العلامات: ${S.mk.length} (🔵 ذكاء اصطناعي، 🟢 مطابقة، 🔴 يدوي)</span></div>
+<div class="tw"><canvas id="cv" style="max-width:100%;cursor:crosshair;touch-action:none" onclick="mark(event)" onpointerdown="ds(event)" onpointerup="de(event)"></canvas></div>${S.learn?'<div class="wn">🎯 اختر الصنف من القائمة ثم اسحب مستطيلًا ضيقًا حول رمز واحد؛ سيبحث النظام عن كل الرموز المشابهة في الصفحات (الرمز بنفس الحجم والاتجاه).</div>':''}<div class="mu">للتصحيح: اختر الصنف وانقر على الرمز الناقص؛ وللحذف انقر بزر الفأرة الأيمن على العلامة.</div></div>`:''}`}
 function tbl(){return `<div class="card"><div class="tw"><table><tr><th>#</th><th>الصنف</th><th>الوحدة</th><th>الكمية</th><th>سعر الشراء</th><th>سعر البيع</th><th>الإجمالي</th><th>الثقة</th></tr>
 ${S.items.map((i,k)=>`<tr><td>${k+1}</td><td>${i.n}</td><td>${i.u}</td><td><input type="number" min="0" id="q${k}" value="${i.q}" oninput="S.items[${k}].q=+this.value;upd()"></td>
 <td><input type="number" min="0" value="${i.c}" oninput="S.items[${k}].c=+this.value;upd()"></td><td><input type="number" min="0" value="${i.p}" oninput="S.items[${k}].p=+this.value;upd()"></td><td id="rt${k}"></td>
@@ -88,14 +88,14 @@ function loadImg(file){const im=new Image();im.onload=async()=>{const c=document
 for(const k in PG)delete PG[k];IMG=c;PDF=null;S.np=1;S.pn=1;reset();await getPage(1);S.msg=G('✔ تم فتح الصورة.');render();autoAI()};im.onerror=()=>{S.msg=W('تعذر فتح الصورة.');render()};im.src=URL.createObjectURL(file)}
 async function loadPDF(file){S.msg='⏳ جاري قراءة المخطط...';render();
 try{if(!window.pdfjsLib)throw new Error('lib/pdf.js غير موجود بجانب index.html');PDF=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false}).promise;
-for(const k in PG)delete PG[k];IMG=null;S.np=PDF.numPages;S.pn=1;reset();await getPage(1);S.msg=G(`✔ تم فتح ${S.np} صفحة.`);render();autoAI()}
+for(const k in PG)delete PG[k];IMG=null;S.np=PDF.numPages;S.pn=1;reset();await getPage(1);const tc=await textCount();S.msg=G(`✔ تم فتح ${S.np} صفحة.`)+' '+(tc.n?G(`عُثر على ${tc.n} صنف من النصوص (قد تشمل جدول المفاتيح، راجعها).`):tc.tx?W('في الملف نصوص لكنها لا تطابق أسماء الأصناف.'):W('المخطط صورة/ممسوح بدون نصوص قابلة للقراءة.'));render();autoAI()}
 catch(e){console.error(e);S.np=0;S.msg=`<span class="er">⚠️ تعذر فتح الـPDF (${e&&e.message||e}). جرّب صورة للمخطط.</span>`;render()}}
-function autoAI(){if(S.key)aiRun();else{S.msg+=' '+W('أدخل مفتاح API ثم اضغط «حصر بالذكاء الاصطناعي» لحصر المخطط تلقائيًا، أو حدّد العناصر بالنقر.');render()}}
+function autoAI(){if(S.key)aiRun();else{S.msg+='<br>'+W('للحصر الآلي بدون مفتاح: اضغط «🎯 تعلّم رمز بالسحب» وحدّد رمزًا واحدًا. أو أدخل مفتاح API للحصر بالذكاء الاصطناعي.');render()}}
 /* ---- العلامات ---- */
 function syncQ(){S.items.forEach(i=>{if(S.tc.has(i.id)||S.mk.some(m=>m.id==i.id)){S.tc.add(i.id);i.q=S.mk.filter(m=>m.id==i.id).length}})}
-function mark(e){const r=e.target.getBoundingClientRect();S.mk.push({p:S.pn,x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height,id:S.cur});const it=S.items.find(i=>i.id==S.cur);it.cf=100;syncQ();keep()}
+function mark(e){if(S.learn)return;const r=e.target.getBoundingClientRect();S.mk.push({p:S.pn,x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height,id:S.cur});const it=S.items.find(i=>i.id==S.cur);it.cf=100;syncQ();keep()}
 function drawV(){const c=$('#cv'),B=PG[S.pn];if(!c||!B)return;c.width=B.width;c.height=B.height;const g=c.getContext('2d');g.drawImage(B,0,0);g.font='bold 14px Tahoma';g.textAlign='center';g.textBaseline='middle';const cnt={};
-S.mk.filter(m=>m.p==S.pn).forEach(m=>{cnt[m.id]=(cnt[m.id]||0)+1;g.fillStyle=m.ai?'rgba(30,110,230,.85)':'rgba(220,40,30,.85)';g.beginPath();g.arc(m.x*c.width,m.y*c.height,11,0,7);g.fill();g.fillStyle='#fff';g.fillText(cnt[m.id],m.x*c.width,m.y*c.height)})}
+S.mk.filter(m=>m.p==S.pn).forEach(m=>{cnt[m.id]=(cnt[m.id]||0)+1;g.fillStyle=m.ai==2?'rgba(30,160,90,.85)':m.ai?'rgba(30,110,230,.85)':'rgba(220,40,30,.85)';g.beginPath();g.arc(m.x*c.width,m.y*c.height,11,0,7);g.fill();g.fillStyle='#fff';g.fillText(cnt[m.id],m.x*c.width,m.y*c.height)})}
 document.addEventListener('contextmenu',e=>{if(e.target.id!='cv')return;e.preventDefault();const r=e.target.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
 let b=-1,bd=.02;S.mk.forEach((m,k)=>{if(m.p!=S.pn)return;const d=Math.hypot(m.x-x,m.y-y);if(d<bd){bd=d;b=k}});if(b>=0){S.mk.splice(b,1);syncQ();keep()}});
 /* ---- الذكاء الاصطناعي ---- */
@@ -121,5 +121,30 @@ syncQ();S.items.forEach(it=>{if(cfs[it.id])it.cf=Math.round(cfs[it.id].reduce((a
 ['p2','p4'].forEach(k=>{if(pip[k]>0){const it=S.items.find(i=>i.id==k);it.q=Math.round(pip[k]*10)/10;it.cf=60}});
 const n=S.items.filter(i=>i.q>0).length;S.msg=G(`✔ حصر الذكاء الاصطناعي: ${n} صنف و${S.mk.length} علامة${S.np>N?` (أول ${N} صفحات فقط)`:''}. راجع العلامات 🔵 على المخطط وصحّحها.`)+(notes.length?`<br><span class="mu">ملاحظات: ${notes.join(' | ')}</span>`:'');if(S.pn>N)S.pn=1}
 catch(e){console.error(e);S.msg=`<span class="er">⚠️ فشل الحصر بالذكاء الاصطناعي: ${e.message}</span>`}render()}
+async function textCount(){const cn={};let tx=0;for(let p=1;p<=S.np;p++){const c=await (await PDF.getPage(p)).getTextContent();c.items.forEach(t=>{const x=t.str.toLowerCase();if(!x.trim())return;tx++;const it=S.items.find(i=>i.kw.some(k=>x.includes(k)));if(it)cn[it.id]=(cn[it.id]||0)+1})}
+Object.keys(cn).forEach(id=>{const it=S.items.find(i=>i.id==id);it.q=cn[id];it.cf=60});return{tx,n:Object.keys(cn).length}}
+/* ---- تعلّم رمز: مطابقة بصرية ---- */
+let DS=null;
+function ds(e){if(!S.learn)return;const r=e.target.getBoundingClientRect();DS=[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]}
+function de(e){if(!S.learn||!DS)return;const r=e.target.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+const a=[Math.min(DS[0],x),Math.min(DS[1],y),Math.abs(x-DS[0]),Math.abs(y-DS[1])];DS=null;if(a[2]*r.width<8||a[3]*r.height<8)return;
+S.msg='⏳ جاري البحث عن الرموز المشابهة...';const m=$('#msg');if(m)m.textContent=S.msg;setTimeout(()=>matchT(a),30)}
+function gray(cv,s){const t=document.createElement('canvas');t.width=Math.round(cv.width*s);t.height=Math.round(cv.height*s);const g=t.getContext('2d');g.drawImage(cv,0,0,t.width,t.height);
+const d=g.getImageData(0,0,t.width,t.height).data,o=new Float32Array(t.width*t.height);for(let i=0;i<o.length;i++)o[i]=.3*d[i*4]+.59*d[i*4+1]+.11*d[i*4+2];return{o,w:t.width,h:t.height}}
+async function matchT(a){try{const B=PG[S.pn],s=Math.min(1,1100/Math.max(B.width,B.height)),gp=gray(B,s),TH=.8;
+let tx=Math.floor(a[0]*gp.w),ty=Math.floor(a[1]*gp.h);const tw=Math.max(6,Math.floor(a[2]*gp.w)),th=Math.max(6,Math.floor(a[3]*gp.h));tx=Math.min(tx,gp.w-tw);ty=Math.min(ty,gp.h-th);
+const st=Math.max(1,Math.floor(Math.min(tw,th)/12)),pts=[];for(let j=0;j<th;j+=st)for(let i=0;i<tw;i+=st)pts.push([i,j,gp.o[(ty+j)*gp.w+tx+i]]);
+const n=pts.length;let ts=0,tq=0;pts.forEach(p=>{ts+=p[2];tq+=p[2]*p[2]});const tm=ts/n,tsd=Math.sqrt(tq/n-tm*tm);
+if(tsd<5)throw new Error('المنطقة المحددة فارغة، حدّد رمزًا واضحًا');
+const N=Math.min(S.np,10);let found=0,sc=0;const dmin=.5*Math.max(tw,th);
+for(let p=1;p<=N;p++){const m=$('#msg');if(m)m.textContent=`⏳ مطابقة صفحة ${p}/${N}...`;await new Promise(r=>setTimeout(r,0));
+const g=p==S.pn?gp:gray(await getPage(p),s),res=[];
+for(let y=0;y+th<=g.h;y++)for(let x=0;x+tw<=g.w;x++){let sum=0,sq=0,sx=0;for(let k=0;k<n;k++){const q=pts[k],v=g.o[(y+q[1])*g.w+x+q[0]];sum+=v;sq+=v*v;sx+=v*q[2]}
+const mm=sum/n,vr=sq/n-mm*mm;if(vr<25)continue;const c=(sx/n-mm*tm)/(Math.sqrt(vr)*tsd);if(c>TH)res.push([c,x,y])}
+res.sort((u,v)=>v[0]-u[0]);const acc=[];for(const r of res){if(acc.length>=400)break;if(acc.every(q=>Math.hypot(q[1]-r[1],q[2]-r[2])>dmin))acc.push(r)}
+acc.forEach(r=>{const cx=(r[1]+tw/2)/g.w,cy=(r[2]+th/2)/g.h;if(S.mk.some(m=>m.p==p&&m.id==S.cur&&Math.hypot((m.x-cx)*g.w,(m.y-cy)*g.h)<dmin))return;S.mk.push({p,x:cx,y:cy,id:S.cur,ai:2});found++;sc+=r[0]})}
+S.tc.add(S.cur);syncQ();const it=S.items.find(i=>i.id==S.cur);it.cf=found?Math.round(sc/found*100):0;it.ok=false;
+S.msg=found?G(`✔ عُثر على ${found} رمز مشابه (🟢) للصنف المحدد. راجع العلامات وصحّح عند الحاجة.`):W('لم يُعثر على رموز مشابهة. جرّب تحديدًا أضيق حول الرمز نفسه.')}
+catch(e){S.msg=`<span class="er">⚠️ ${e.message}</span>`}keep()}
 render();
 </script></body></html>
